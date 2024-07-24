@@ -1,10 +1,10 @@
-from random import choices
 
 import pandas as pd
 import seaborn as sns
+import secrets
 
 data = [41, 50, 29]
-random_choices = choices(data, k=len(data))
+random_choices = secrets.SystemRandom().choices(data, k=len(data))
 print(random_choices)
 
 iris_dataset = sns.load_dataset("iris")

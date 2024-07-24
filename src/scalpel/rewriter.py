@@ -6,7 +6,6 @@ Code rewriting can bring great benefits such as API extraction and dynamic testi
 
 import ast
 import os
-import random
 import sys
 
 import astor
@@ -14,6 +13,7 @@ from astor.source_repr import count
 
 from scalpel.core.util import UnitWalker
 from scalpel.core.vars_visitor import get_vars
+import secrets
 
 
 class Rewriter:
@@ -61,8 +61,8 @@ class Rewriter:
         if K > len(new_name_candidates):
             raise Exception("K is too large for given new name candidates")
 
-        chosen_vars = random.sample(var_name_set, K)
-        chosen_new_names = random.sample(new_name_candidates, K)
+        chosen_vars = secrets.SystemRandom().sample(var_name_set, K)
+        chosen_new_names = secrets.SystemRandom().sample(new_name_candidates, K)
         renaming_pairs = zip(chosen_vars, chosen_new_names)
 
         renaming_dict = dict(renaming_pairs)
@@ -86,7 +86,7 @@ class Rewriter:
         walker = UnitWalker(self.ast)
         for unit in walker:
             num_insertion_point += 1
-        insertion_loc = random.randint(0, num_insertion_point - 1)
+        insertion_loc = secrets.SystemRandom().randint(0, num_insertion_point - 1)
         idx = 0
         walker = UnitWalker(self.ast)
         for unit in walker:
