@@ -19,19 +19,18 @@ The script is retrieved from https://github.com/ishepard/pydriller
 This module includes 1 class, RepositoryMining, main class of PyDriller.
 """
 
+import concurrent.futures
 import logging
 import math
 import os
 import shutil
 import tempfile
-import concurrent.futures
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import List, Generator, Union
+from typing import Generator, List, Union
 
 from git import Repo
-
 from pydriller.domain.commit import Commit
 from pydriller.git_repository import GitRepository
 from pydriller.utils.conf import Conf
@@ -44,24 +43,30 @@ class RepositoryMining:
     This is the main class of PyDriller, responsible for running the study.
     """
 
-    def __init__(self, path_to_repo: Union[str, List[str]],
-                 single: str = None,
-                 since: datetime = None, to: datetime = None,
-                 from_commit: str = None, to_commit: str = None,
-                 from_tag: str = None, to_tag: str = None,
-                 include_refs: bool = False,
-                 include_remotes: bool = False,
-                 only_in_branch: str = None,
-                 only_modifications_with_file_types: List[str] = None,
-                 only_no_merge: bool = False,
-                 only_authors: List[str] = None,
-                 only_commits: List[str] = None,
-                 only_releases: bool = False,
-                 filepath: str = None,
-                 histogram_diff: bool = False,
-                 skip_whitespaces: bool = False,
-                 clone_repo_to: str = None,
-                 order: str = None):
+    def __init__(
+        self,
+        path_to_repo: Union[str, List[str]],
+        single: str = None,
+        since: datetime = None,
+        to: datetime = None,
+        from_commit: str = None,
+        to_commit: str = None,
+        from_tag: str = None,
+        to_tag: str = None,
+        include_refs: bool = False,
+        include_remotes: bool = False,
+        only_in_branch: str = None,
+        only_modifications_with_file_types: List[str] = None,
+        only_no_merge: bool = False,
+        only_authors: List[str] = None,
+        only_commits: List[str] = None,
+        only_releases: bool = False,
+        filepath: str = None,
+        histogram_diff: bool = False,
+        skip_whitespaces: bool = False,
+        clone_repo_to: str = None,
+        order: str = None,
+    ):
         """
         Init a repository mining. The only required parameter is
         "path_to_repo": to analyze a single repo, pass the absolute path to
@@ -102,13 +107,11 @@ class RepositoryMining:
             'author-date-order', 'topo-order', or 'reverse'. Default is reverse.
         """
         file_modification_set = (
-            None if only_modifications_with_file_types is None
+            None
+            if only_modifications_with_file_types is None
             else set(only_modifications_with_file_types)
-            )
-        commit_set = (
-            None if only_commits is None
-            else set(only_commits)
-            )
+        )
+        commit_set = None if only_commits is None else set(only_commits)
 
         options = {
             "git_repo": None,
@@ -134,7 +137,7 @@ class RepositoryMining:
             "tagged_commits": None,
             "histogram": histogram_diff,
             "clone_repo_to": clone_repo_to,
-            "order": order
+            "order": order,
         }
         self._conf = Conf(options)
 
@@ -154,8 +157,8 @@ class RepositoryMining:
         return repo_folder
 
     def _clone_folder(self) -> str:
-        if self._conf.get('clone_repo_to'):
-            clone_folder = str(Path(self._conf.get('clone_repo_to')))
+        if self._conf.get("clone_repo_to"):
+            clone_folder = str(Path(self._conf.get("clone_repo_to")))
             if not os.path.isdir(clone_folder):
                 raise Exception("Not a directory: {0}".format(clone_folder))
         else:
@@ -173,7 +176,7 @@ class RepositoryMining:
 
         # when multiple repos are given in input, this variable will serve as a reminder
         # of which one we are currently analyzing
-        self._conf.set_value('path_to_repo', local_path_repo)
+        self._conf.set_value("path_to_repo", local_path_repo)
 
         self.git_repo = GitRepository(local_path_repo, self._conf)
         # saving the GitRepository object for further use
@@ -204,28 +207,39 @@ class RepositoryMining:
         Analyze all the specified commits (all of them by default), returning
         a generator of commits.
         """
-        for path_repo in self._conf.get('path_to_repos'):
+        for path_repo in self._conf.get("path_to_repos"):
             with self._prep_repo(path_repo=path_repo) as git_repo:
-                logger.info('Analyzing git repository in %s', git_repo.path)
+                logger.info("Analyzing git repository in %s", git_repo.path)
 
                 # Get the commits that modified the filepath. In this case, we can not use
                 # git rev-list since it doesn't have the option --follow, necessary to follow
                 # the renames. Hence, we manually call git log instead
-                if self._conf.get('filepath') is not None:
-                    self._conf.set_value('filepath_commits', git_repo.get_commits_modified_file(self._conf.get('filepath')))
+                if self._conf.get("filepath") is not None:
+                    self._conf.set_value(
+                        "filepath_commits",
+                        git_repo.get_commits_modified_file(self._conf.get("filepath")),
+                    )
 
                 # Gets only the commits that are tagged
-                if self._conf.get('only_releases'):
-                    self._conf.set_value('tagged_commits', git_repo.get_tagged_commits())
+                if self._conf.get("only_releases"):
+                    self._conf.set_value(
+                        "tagged_commits", git_repo.get_tagged_commits()
+                    )
 
                 # Build the arguments to pass to git rev-list.
                 rev, kwargs = self._conf.build_args()
 
                 commits_list = list(git_repo.get_list_commits(rev, **kwargs))
                 num_chunks = math.ceil(len(commits_list) / 8)
-                chunks = [commits_list[i:i + num_chunks] for i in range(0, len(commits_list), num_chunks)]
+                chunks = [
+                    commits_list[i : i + num_chunks]
+                    for i in range(0, len(commits_list), num_chunks)
+                ]
                 with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-                    jobs = {executor.submit(self.iter_commits, chunk): chunk for chunk in chunks}
+                    jobs = {
+                        executor.submit(self.iter_commits, chunk): chunk
+                        for chunk in chunks
+                    }
 
                     parallel_results = []
                     for job in concurrent.futures.as_completed(jobs):
@@ -239,10 +253,15 @@ class RepositoryMining:
 
     def iter_commits(self, commits_list: List[Commit]) -> Commit:
         for commit in commits_list:
-            logger.info('Commit #%s in %s from %s', commit.hash, commit.committer_date, commit.author.name)
+            logger.info(
+                "Commit #%s in %s from %s",
+                commit.hash,
+                commit.committer_date,
+                commit.author.name,
+            )
 
             if self._conf.is_commit_filtered(commit):
-                logger.info('Commit #%s filtered', commit.hash)
+                logger.info("Commit #%s filtered", commit.hash)
                 continue
 
             yield commit
@@ -257,4 +276,4 @@ class RepositoryMining:
         if last_slash_index < 0 or last_suffix_index <= last_slash_index:
             raise Exception("Badly formatted url {}".format(url))
 
-        return url[last_slash_index + 1:last_suffix_index]
+        return url[last_slash_index + 1 : last_suffix_index]

@@ -1,6 +1,3 @@
-
-
-
 class SMethod:
     signature = ""
     name = ""

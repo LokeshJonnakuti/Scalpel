@@ -44,134 +44,136 @@ stmt = FunctionDef(identifier name, arguments args,
         | Pass | Break | Continue
 '''
 
-from enum import Enum
+import ast
 from abc import ABC, abstractmethod
-import ast 
+from enum import Enum
+
 import astor
 
+
 class SStmt:
-  
+
     def __init__(self, node):
         assert isinstance(node, ast.stmt)
         self.node = node
         self.src = astor.unparse(node)
         self.node_lineno =node.lineno
-        self.node_col_offset = node.col_offset 
-    
+        self.node_col_offset = node.col_offset
+
     def get_line_number(self):
         """
         return the location of this statement represented by lineno and column offset
         """
         return (self.node_lineno, self.node_col_offset)
-    
+
     def get_src(self):
-        return self.src 
-    
+        return self.src
+
     @abstractmethod
     def get_clauses():
         # return a dictionary:  name, clauses
-        # for an assignment stmt can be: target: stmt.target, value: stmt.value 
+        # for an assignment stmt can be: target: stmt.target, value: stmt.value
         raise NotImplemented
- 
+
 class AssignStmt(SStmt):
- 
+
     # overriding abstract method
     def get_clauses():
         pass
-    
+
     def get_line_number(self):
         return super().get_line_number()
 
 class AugAssignStmt(SStmt):
- 
+
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
 class AnnStmt(SStmt):
- 
+
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
 class IfStmt(SStmt):
- 
+
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-        
+
 class ForStmt(SStmt):
- 
+
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
 class WhileStmt(SStmt):
- 
+
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
  class FunctionDedfStmt(SStmt):
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
  class ClassDefStmt(SStmt):
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
-    
+
  class MatchDefStmt(SStmt):
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
 
@@ -179,19 +181,19 @@ class WhileStmt(SStmt):
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()
  class ReturnStmt(SStmt):
     # overriding abstract method
     def get_declared_method(self):
         raise NotImplementedError
-    
+
     def get_content(self):
         raise NotImplementedError
-    
+
     def get_line_number(self):
         return super().get_line_number()

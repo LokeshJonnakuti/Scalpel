@@ -5,45 +5,25 @@ retrieval and to reduce dependency on DB-specific API.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from datetime import (
-    date,
-    datetime,
-    time,
-)
-from functools import partial
 import re
-from typing import (
-    Any,
-    Iterator,
-    Sequence,
-    cast,
-    overload,
-)
 import warnings
+from contextlib import contextmanager
+from datetime import date, datetime, time
+from functools import partial
+from typing import Any, Iterator, Sequence, cast, overload
 
 import numpy as np
-
 import pandas._libs.lib as lib
+from pandas import get_option
 from pandas._typing import DtypeArg
 from pandas.compat._optional import import_optional_dependency
-from pandas.errors import AbstractMethodError
-
-from pandas.core.dtypes.common import (
-    is_datetime64tz_dtype,
-    is_dict_like,
-    is_list_like,
-)
+from pandas.core.api import DataFrame, Series
+from pandas.core.base import PandasObject
+from pandas.core.dtypes.common import is_datetime64tz_dtype, is_dict_like, is_list_like
 from pandas.core.dtypes.dtypes import DatetimeTZDtype
 from pandas.core.dtypes.missing import isna
-
-from pandas import get_option
-from pandas.core.api import (
-    DataFrame,
-    Series,
-)
-from pandas.core.base import PandasObject
 from pandas.core.tools.datetimes import to_datetime
+from pandas.errors import AbstractMethodError
 from pandas.util.version import Version
 
 
@@ -923,7 +903,6 @@ class SQLTable(PandasObject):
         return column_names, data_list
 
     def insert(self, chunksize: int | None = None, method: str | None = None):
-
         # set insert method
         if method is None:
             exec_insert = self._execute_insert
@@ -990,7 +969,6 @@ class SQLTable(PandasObject):
                 yield self.frame
 
     def read(self, coerce_float=True, parse_dates=None, columns=None, chunksize=None):
-
         if columns is not None and len(columns) > 0:
             from sqlalchemy import select
 
@@ -1077,11 +1055,7 @@ class SQLTable(PandasObject):
         return column_names_and_types
 
     def _create_table_setup(self):
-        from sqlalchemy import (
-            Column,
-            PrimaryKeyConstraint,
-            Table,
-        )
+        from sqlalchemy import Column, PrimaryKeyConstraint, Table
 
         column_names_and_types = self._get_column_names_and_types(self._sqlalchemy_type)
 
@@ -1160,7 +1134,6 @@ class SQLTable(PandasObject):
                 pass  # this column not in results
 
     def _sqlalchemy_type(self, col):
-
         dtype: DtypeArg = self.dtype or {}
         if is_dict_like(dtype):
             dtype = cast(dict, dtype)
@@ -1198,8 +1171,10 @@ class SQLTable(PandasObject):
             return DateTime
         if col_type == "timedelta64":
             warnings.warn(
-                "the 'timedelta' type is not supported, and will be "
-                "written as integer values (ns frequency) to the database.",
+                (
+                    "the 'timedelta' type is not supported, and will be "
+                    "written as integer values (ns frequency) to the database."
+                ),
                 UserWarning,
                 stacklevel=8,
             )
@@ -1231,14 +1206,7 @@ class SQLTable(PandasObject):
         return Text
 
     def _get_dtype(self, sqltype):
-        from sqlalchemy.types import (
-            TIMESTAMP,
-            Boolean,
-            Date,
-            DateTime,
-            Float,
-            Integer,
-        )
+        from sqlalchemy.types import TIMESTAMP, Boolean, Date, DateTime, Float, Integer
 
         if isinstance(sqltype, Float):
             return float
@@ -1620,10 +1588,7 @@ class SQLDatabase(PandasSQL):
             else:
                 dtype = cast(dict, dtype)
 
-            from sqlalchemy.types import (
-                TypeEngine,
-                to_instance,
-            )
+            from sqlalchemy.types import TypeEngine, to_instance
 
             for col, my_type in dtype.items():
                 if not isinstance(to_instance(my_type), TypeEngine):
@@ -1990,8 +1955,10 @@ class SQLiteTable(SQLTable):
 
         if col_type == "timedelta64":
             warnings.warn(
-                "the 'timedelta' type is not supported, and will be "
-                "written as integer values (ns frequency) to the database.",
+                (
+                    "the 'timedelta' type is not supported, and will be "
+                    "written as integer values (ns frequency) to the database."
+                ),
                 UserWarning,
                 stacklevel=8,
             )
@@ -2099,7 +2066,6 @@ class SQLiteDatabase(PandasSQL):
         chunksize: int | None = None,
         dtype: DtypeArg | None = None,
     ):
-
         args = _convert_params(sql, params)
         cursor = self.execute(*args)
         columns = [col_desc[0] for col_desc in cursor.description]

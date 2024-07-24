@@ -1,12 +1,9 @@
 import numpy as np
-import pytest
-
-import pandas._config.config as cf
-
 import pandas as pd
-
+import pandas._config.config as cf
 import pandas.io.formats.format as fmt
 import pandas.io.formats.printing as printing
+import pytest
 
 
 def test_adjoin():
@@ -129,7 +126,6 @@ class TestTableSchemaRepr:
         cls.display_formatter = InteractiveShell.instance().display_formatter
 
     def test_publishes(self):
-
         df = pd.DataFrame({"A": [1, 2]})
         objects = [df["A"], df, df]  # dataframe / series
         expected_keys = [

@@ -2,29 +2,26 @@
 Test output formatting for Series/DataFrame, including to_string & reprs
 """
 
-from datetime import datetime
-from io import StringIO
 import itertools
-from operator import methodcaller
 import os
-from pathlib import Path
 import re
-from shutil import get_terminal_size
 import sys
 import textwrap
+from datetime import datetime
+from io import StringIO
+from operator import methodcaller
+from pathlib import Path
+from shutil import get_terminal_size
 
 import dateutil
 import numpy as np
+import pandas as pd
+import pandas._testing as tm
+import pandas.io.formats.format as fmt
+import pandas.io.formats.printing as printing
+import pandas.util._test_decorators as td
 import pytest
 import pytz
-
-from pandas.compat import (
-    IS64,
-    is_platform_windows,
-)
-import pandas.util._test_decorators as td
-
-import pandas as pd
 from pandas import (
     DataFrame,
     Index,
@@ -39,10 +36,7 @@ from pandas import (
     reset_option,
     set_option,
 )
-import pandas._testing as tm
-
-import pandas.io.formats.format as fmt
-import pandas.io.formats.printing as printing
+from pandas.compat import IS64, is_platform_windows
 
 use_32bit_repr = is_platform_windows() or not IS64
 
@@ -176,7 +170,6 @@ class TestDataFrameFormatting:
         tm.reset_display_options()
 
     def test_show_null_counts(self):
-
         df = DataFrame(1, columns=range(10), index=range(10))
         df.iloc[1, 1] = np.nan
 
@@ -267,8 +260,9 @@ class TestDataFrameFormatting:
         df = DataFrame([[10, 20, 30, 40], [8e-10, -1e-11, 2e-9, -2e-11]]).T
 
         with option_context("display.chop_threshold", 0):
-            assert repr(df) == (
-                "      0             1\n"
+            assert (
+                repr(df)
+                == "      0             1\n"
                 "0  10.0  8.000000e-10\n"
                 "1  20.0 -1.000000e-11\n"
                 "2  30.0  2.000000e-09\n"
@@ -276,8 +270,9 @@ class TestDataFrameFormatting:
             )
 
         with option_context("display.chop_threshold", 1e-8):
-            assert repr(df) == (
-                "      0             1\n"
+            assert (
+                repr(df)
+                == "      0             1\n"
                 "0  10.0  0.000000e+00\n"
                 "1  20.0  0.000000e+00\n"
                 "2  30.0  0.000000e+00\n"
@@ -285,8 +280,9 @@ class TestDataFrameFormatting:
             )
 
         with option_context("display.chop_threshold", 5e-11):
-            assert repr(df) == (
-                "      0             1\n"
+            assert (
+                repr(df)
+                == "      0             1\n"
                 "0  10.0  8.000000e-10\n"
                 "1  20.0  0.000000e+00\n"
                 "2  30.0  2.000000e-09\n"
@@ -523,14 +519,16 @@ class TestDataFrameFormatting:
             ]
         )
         df.set_index(["a", "b", "c"])
-        assert str(df) == (
-            "     a    b                                           c  d\n"
+        assert (
+            str(df)
+            == "     a    b                                           c  d\n"
             "0  foo  bar  uncomfortably long line with lots of stuff  1\n"
             "1  foo  bar                                       stuff  1"
         )
         with option_context("max_colwidth", 20):
-            assert str(df) == (
-                "     a    b                    c  d\n"
+            assert (
+                str(df)
+                == "     a    b                    c  d\n"
                 "0  foo  bar  uncomfortably lo...  1\n"
                 "1  foo  bar                stuff  1"
             )
@@ -735,7 +733,6 @@ class TestDataFrameFormatting:
     def test_east_asian_unicode_true(self):
         # Enable Unicode option -----------------------------------------
         with option_context("display.unicode.east_asian_width", True):
-
             # mid col
             df = DataFrame(
                 {"a": ["あ", "いいい", "う", "ええええええ"], "b": [1, 222, 33333, 4]},
@@ -851,7 +848,6 @@ class TestDataFrameFormatting:
 
             # truncate
             with option_context("display.max_rows", 3, "display.max_columns", 3):
-
                 df = DataFrame(
                     {
                         "a": ["あああああ", "い", "う", "えええ"],
@@ -989,7 +985,6 @@ class TestDataFrameFormatting:
             assert has_doubly_truncated_repr(df)
 
     def test_truncate_with_different_dtypes(self):
-
         # 11594, 12045
         # when truncated the dtypes of the splits can differ
 
@@ -1024,7 +1019,6 @@ class TestDataFrameFormatting:
         assert result.startswith(result2)
 
     def test_datetimelike_frame(self):
-
         # GH 12211
         df = DataFrame({"date": [Timestamp("20130101").tz_localize("UTC")] + [NaT] * 5})
 
@@ -1345,7 +1339,6 @@ class TestDataFrameFormatting:
         assert result == expected
 
     def test_to_string(self):
-
         # big mixed
         biggie = DataFrame(
             {"A": np.random.randn(200), "B": tm.makeStringIndex(200)},
@@ -1499,7 +1492,6 @@ class TestDataFrameFormatting:
         assert df_s == expected
 
     def test_to_string_float_format_no_fixed_width(self):
-
         # GH 21625
         df = DataFrame({"x": [0.19999]})
         expected = "      x\n0 0.200"
@@ -1517,17 +1509,11 @@ class TestDataFrameFormatting:
         # sadness per above
         if _three_digit_exp():
             expected = (
-                "               a\n"
-                "0  1.500000e+000\n"
-                "1  1.000000e-017\n"
-                "2 -5.500000e-007"
+                "               a\n0  1.500000e+000\n1  1.000000e-017\n2 -5.500000e-007"
             )
         else:
             expected = (
-                "              a\n"
-                "0  1.500000e+00\n"
-                "1  1.000000e-17\n"
-                "2 -5.500000e-07"
+                "              a\n0  1.500000e+00\n1  1.000000e-17\n2 -5.500000e-07"
             )
         assert result == expected
 
@@ -1832,7 +1818,6 @@ c  10  11  12  13  14\
 
     def test_repr_html_float(self):
         with option_context("display.max_rows", 60):
-
             max_rows = get_option("display.max_rows")
             h = max_rows - 1
             df = DataFrame(
@@ -2158,7 +2143,7 @@ class TestSeriesFormatting:
         cp.name = "foo"
         result = cp.to_string(length=True, name=True, dtype=True)
         last_line = result.split("\n")[-1].strip()
-        assert last_line == (f"Freq: B, Name: foo, Length: {len(cp)}, dtype: float64")
+        assert last_line == f"Freq: B, Name: foo, Length: {len(cp)}, dtype: float64"
 
     def test_freq_name_separation(self):
         s = Series(
@@ -2294,7 +2279,6 @@ class TestSeriesFormatting:
 
         # Enable Unicode option -----------------------------------------
         with option_context("display.unicode.east_asian_width", True):
-
             # unicode index
             s = Series(["a", "bb", "CCC", "D"], index=["あ", "いい", "ううう", "ええええ"])
             expected = (
@@ -2419,7 +2403,6 @@ class TestSeriesFormatting:
                 assert "+10" in line
 
     def test_datetimeindex(self):
-
         index = date_range("20130102", periods=6)
         s = Series(1, index=index)
         result = s.to_string()
@@ -2460,11 +2443,7 @@ class TestSeriesFormatting:
         assert start_date in result
 
     def test_timedelta64(self):
-
-        from datetime import (
-            datetime,
-            timedelta,
-        )
+        from datetime import datetime, timedelta
 
         Series(np.array([1100, 20], dtype="timedelta64[ns]")).to_string()
 
@@ -2901,44 +2880,54 @@ class TestFloatArrayFormatter:
             )
 
             expected_output = {
-                (0, 6): "           col1\n"
-                "0  9.999000e-08\n"
-                "1  1.000000e-07\n"
-                "2  1.000100e-07\n"
-                "3  2.000000e-07\n"
-                "4  4.999000e-07\n"
-                "5  5.000000e-07",
-                (1, 6): "           col1\n"
-                "1  1.000000e-07\n"
-                "2  1.000100e-07\n"
-                "3  2.000000e-07\n"
-                "4  4.999000e-07\n"
-                "5  5.000000e-07",
-                (1, 8): "           col1\n"
-                "1  1.000000e-07\n"
-                "2  1.000100e-07\n"
-                "3  2.000000e-07\n"
-                "4  4.999000e-07\n"
-                "5  5.000000e-07\n"
-                "6  5.000100e-07\n"
-                "7  6.000000e-07",
-                (8, 16): "            col1\n"
-                "8   9.999000e-07\n"
-                "9   1.000000e-06\n"
-                "10  1.000100e-06\n"
-                "11  2.000000e-06\n"
-                "12  4.999000e-06\n"
-                "13  5.000000e-06\n"
-                "14  5.000100e-06\n"
-                "15  6.000000e-06",
-                (9, 16): "        col1\n"
-                "9   0.000001\n"
-                "10  0.000001\n"
-                "11  0.000002\n"
-                "12  0.000005\n"
-                "13  0.000005\n"
-                "14  0.000005\n"
-                "15  0.000006",
+                (0, 6): (
+                    "           col1\n"
+                    "0  9.999000e-08\n"
+                    "1  1.000000e-07\n"
+                    "2  1.000100e-07\n"
+                    "3  2.000000e-07\n"
+                    "4  4.999000e-07\n"
+                    "5  5.000000e-07"
+                ),
+                (1, 6): (
+                    "           col1\n"
+                    "1  1.000000e-07\n"
+                    "2  1.000100e-07\n"
+                    "3  2.000000e-07\n"
+                    "4  4.999000e-07\n"
+                    "5  5.000000e-07"
+                ),
+                (1, 8): (
+                    "           col1\n"
+                    "1  1.000000e-07\n"
+                    "2  1.000100e-07\n"
+                    "3  2.000000e-07\n"
+                    "4  4.999000e-07\n"
+                    "5  5.000000e-07\n"
+                    "6  5.000100e-07\n"
+                    "7  6.000000e-07"
+                ),
+                (8, 16): (
+                    "            col1\n"
+                    "8   9.999000e-07\n"
+                    "9   1.000000e-06\n"
+                    "10  1.000100e-06\n"
+                    "11  2.000000e-06\n"
+                    "12  4.999000e-06\n"
+                    "13  5.000000e-06\n"
+                    "14  5.000100e-06\n"
+                    "15  6.000000e-06"
+                ),
+                (9, 16): (
+                    "        col1\n"
+                    "9   0.000001\n"
+                    "10  0.000001\n"
+                    "11  0.000002\n"
+                    "12  0.000005\n"
+                    "13  0.000005\n"
+                    "14  0.000005\n"
+                    "15  0.000006"
+                ),
             }
 
             for (start, stop), v in expected_output.items():
@@ -3086,7 +3075,6 @@ class TestDatetime64Formatter:
         assert result[0].strip() == "1970-01-01 00:00:00.000000200"
 
     def test_dates_display(self):
-
         # 10170
         # make sure that we are consistently display date formatting
         x = Series(date_range("20130101 09:00:00", periods=5, freq="D"))
@@ -3135,7 +3123,6 @@ class TestDatetime64Formatter:
         assert result == ["2016-01", "2016-02"]
 
     def test_datetime64formatter_hoursecond(self):
-
         x = Series(
             pd.to_datetime(["10:10:10.100", "12:12:12.120"], format="%H:%M:%S.%f")
         )

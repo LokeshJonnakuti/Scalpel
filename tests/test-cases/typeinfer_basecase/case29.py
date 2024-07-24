@@ -1,7 +1,8 @@
 import os
 
 FILEPATH = os.path.join(
-    os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'blns.txt')
+    os.path.abspath(os.path.dirname(os.path.dirname(__file__))), "blns.txt"
+)
 """Path to the file"""
 
 
@@ -17,17 +18,17 @@ def naughty_strings(filepath=FILEPATH):
     """
 
     strings = []
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         # put all lines in the file into a Python list
         strings = f.readlines()
 
         # above line leaves trailing newline characters; strip them out
-        strings = [x.strip(u'\n') for x in strings]
+        strings = [x.strip("\n") for x in strings]
 
         # remove empty-lines and comments
-        strings = [x for x in strings if x and not x.startswith(u'#')]
+        strings = [x for x in strings if x and not x.startswith("#")]
 
         # insert empty string since all are being removed
-        strings.insert(0, u"")
+        strings.insert(0, "")
 
     return strings

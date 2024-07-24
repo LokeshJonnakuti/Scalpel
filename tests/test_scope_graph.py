@@ -1,20 +1,22 @@
-import os
 import ast
+import os
 import sys
+
 from scalpel.scope_graph import ScopeGraph
+
 src = """
 class A:
     static_a = 0
     def fun1():
         a = 0
-        pass 
+        pass
     def fun2():
         a = static_a +1
 class B:
     def fun1():
-        pass 
+        pass
     def fun2():
-        pass 
+        pass
 
 class C(B, A):
     def __int__(self):
@@ -25,7 +27,7 @@ c.fun1()
 
 """
 
-src =  """
+src = """
 
 class A:
     def rk(self):
@@ -40,7 +42,7 @@ class C(A):
 
 class D(B, C):
     pass
-    
+
 """
 
 
@@ -55,5 +57,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

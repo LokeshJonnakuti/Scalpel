@@ -1,24 +1,24 @@
+import numpy
 import pytest
-from spacy import registry
-from spacy.lang.en import English
-from spacy.lang.de import German
-from spacy.pipeline.ner import DEFAULT_NER_MODEL
-from spacy.pipeline import EntityRuler, EntityRecognizer
-from spacy.matcher import Matcher, PhraseMatcher
-from spacy.tokens import Doc
-from spacy.vocab import Vocab
+from spacy import displacy, registry
 from spacy.attrs import ENT_IOB, ENT_TYPE
 from spacy.compat import pickle
-from spacy import displacy
+from spacy.lang.de import German
+from spacy.lang.en import English
+from spacy.matcher import Matcher, PhraseMatcher
+from spacy.pipeline import EntityRecognizer, EntityRuler
+from spacy.pipeline.ner import DEFAULT_NER_MODEL
+from spacy.tokens import Doc
 from spacy.vectors import Vectors
-import numpy
+from spacy.vocab import Vocab
 
 
 def test_issue3002():
     """Test that the tokenizer doesn't hang on a long list of dots"""
     nlp = German()
     doc = nlp(
-        "880.794.982.218.444.893.023.439.794.626.120.190.780.624.990.275.671 ist eine lange Zahl"
+        "880.794.982.218.444.893.023.439.794.626.120.190.780.624.990.275.671 ist eine"
+        " lange Zahl"
     )
     assert len(doc) == 5
 

@@ -5,13 +5,11 @@ https://github.com/pytest-dev/pytest
 import os
 import shutil
 import sys
-from typing import Optional
-from typing import Sequence
-from typing import TextIO
+from typing import Optional, Sequence, TextIO
 
-from .wcwidth import wcswidth
 from _pytest.compat import final
 
+from .wcwidth import wcswidth
 
 # This code was initially copied from py 1.8.1, file _io/terminalwriter.py.
 
@@ -203,10 +201,10 @@ class TerminalWriter:
         if not self.hasmarkup or not self.code_highlight:
             return source
         try:
+            import pygments.util
+            from pygments import highlight
             from pygments.formatters.terminal import TerminalFormatter
             from pygments.lexers.python import PythonLexer
-            from pygments import highlight
-            import pygments.util
         except ImportError:
             return source
         else:
@@ -229,8 +227,8 @@ class TerminalWriter:
                 )
             except pygments.util.OptionError:
                 raise UsageError(
-                    "PYTEST_THEME_MODE environment variable had an invalid value: '{}'. "
-                    "The only allowed values are 'dark' and 'light'.".format(
+                    "PYTEST_THEME_MODE environment variable had an invalid value: '{}'."
+                    " The only allowed values are 'dark' and 'light'.".format(
                         os.getenv("PYTEST_THEME_MODE")
                     )
                 )

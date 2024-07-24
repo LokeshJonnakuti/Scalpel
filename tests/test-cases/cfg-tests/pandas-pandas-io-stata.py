@@ -11,43 +11,17 @@ https://www.statsmodels.org/devel/
 """
 from __future__ import annotations
 
-from collections import abc
 import datetime
-from io import BytesIO
 import os
 import struct
 import sys
-from typing import (
-    Any,
-    AnyStr,
-    Hashable,
-    Sequence,
-    cast,
-)
 import warnings
+from collections import abc
+from io import BytesIO
+from typing import Any, AnyStr, Hashable, Sequence, cast
 
-from dateutil.relativedelta import relativedelta
 import numpy as np
-
-from pandas._libs.lib import infer_dtype
-from pandas._libs.writers import max_len_string_array
-from pandas._typing import (
-    Buffer,
-    CompressionOptions,
-    FilePathOrBuffer,
-    StorageOptions,
-)
-from pandas.util._decorators import (
-    Appender,
-    doc,
-)
-
-from pandas.core.dtypes.common import (
-    ensure_object,
-    is_categorical_dtype,
-    is_datetime64_dtype,
-)
-
+from dateutil.relativedelta import relativedelta
 from pandas import (
     Categorical,
     DatetimeIndex,
@@ -58,12 +32,20 @@ from pandas import (
     to_datetime,
     to_timedelta,
 )
+from pandas._libs.lib import infer_dtype
+from pandas._libs.writers import max_len_string_array
+from pandas._typing import Buffer, CompressionOptions, FilePathOrBuffer, StorageOptions
 from pandas.core import generic
+from pandas.core.dtypes.common import (
+    ensure_object,
+    is_categorical_dtype,
+    is_datetime64_dtype,
+)
 from pandas.core.frame import DataFrame
 from pandas.core.indexes.base import Index
 from pandas.core.series import Series
-
 from pandas.io.common import get_handle
+from pandas.util._decorators import Appender, doc
 
 _version_error = (
     "Version of given Stata file is {version}. pandas supports importing "
@@ -332,7 +314,6 @@ def _stata_elapsed_date_to_datetime_vec(dates, fmt) -> Series:
         ms = dates
         conv_dates = convert_delta_safe(base, ms, "ms")
     elif fmt.startswith(("%tC", "tC")):
-
         warnings.warn("Encountered %tC format. Leaving in Stata Internal Format.")
         conv_dates = Series(dates, dtype=object)
         if has_bad_values:
@@ -584,7 +565,7 @@ def _cast_to_stata_types(data: DataFrame) -> DataFrame:
                 else:
                     dtype = c_data[2]
                 if c_data[2] == np.int64:  # Warn if necessary
-                    if data[col].max() >= 2 ** 53:
+                    if data[col].max() >= 2**53:
                         ws = precision_loss_doc.format("uint64", "float64")
 
                 data[col] = data[col].astype(dtype)
@@ -601,7 +582,7 @@ def _cast_to_stata_types(data: DataFrame) -> DataFrame:
                 data[col] = data[col].astype(np.int32)
             else:
                 data[col] = data[col].astype(np.float64)
-                if data[col].max() >= 2 ** 53 or data[col].min() <= -(2 ** 53):
+                if data[col].max() >= 2**53 or data[col].min() <= -(2**53):
                     ws = precision_loss_doc.format("int64", "float64")
         elif dtype in (np.float32, np.float64):
             value = data[col].max()
@@ -638,7 +619,6 @@ class StataValueLabel:
     """
 
     def __init__(self, catarray: Series, encoding: str = "latin-1"):
-
         if encoding not in ("latin-1", "utf-8"):
             raise ValueError("Only latin-1 and utf-8 are supported.")
         self.labname = catarray.name
@@ -880,7 +860,6 @@ class StataMissingValue:
 
 class StataParser:
     def __init__(self):
-
         # type          code.
         # --------------------
         # str1        1 = 0x01
@@ -1217,7 +1196,6 @@ class StataReader(StataParser, abc.Iterator):
     def _get_dtypes(
         self, seek_vartypes: int
     ) -> tuple[list[int | str], list[str | np.dtype]]:
-
         self.path_or_buf.seek(seek_vartypes)
         raw_typlist = [
             struct.unpack(self.byteorder + "H", self.path_or_buf.read(2))[0]
@@ -1788,7 +1766,6 @@ the string values returned are correct."""
         return data
 
     def _do_select_columns(self, data: DataFrame, columns: Sequence[str]) -> DataFrame:
-
         if not self._column_selector_set:
             column_set = set(columns)
             if len(column_set) != len(columns):
@@ -1942,7 +1919,6 @@ def read_stata(
     compression: CompressionOptions = "infer",
     storage_options: StorageOptions = None,
 ) -> DataFrame | StataReader:
-
     reader = StataReader(
         filepath_or_buffer,
         convert_dates=convert_dates,
@@ -2513,7 +2489,6 @@ supported types."""
             is_text=False,
             storage_options=self.storage_options,
         ) as self.handles:
-
             if self.handles.compression["method"] is not None:
                 # ZipFile creates a file (with the same name) for each write call.
                 # Write it first into a buffer and then write the buffer to the ZipFile.
@@ -2549,8 +2524,10 @@ supported types."""
                         os.unlink(self._fname)
                     except OSError:
                         warnings.warn(
-                            f"This save was not successful but {self._fname} could not "
-                            "be deleted. This file is not valid.",
+                            (
+                                f"This save was not successful but {self._fname} could"
+                                " not be deleted. This file is not valid."
+                            ),
                             ResourceWarning,
                         )
                 raise exc

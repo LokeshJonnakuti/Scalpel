@@ -1,6 +1,7 @@
-'''
+"""
 From pytest_saferepr.py
-'''
+"""
+
 
 def _try_repr_or_str(obj: object) -> str:
     try:

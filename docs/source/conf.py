@@ -21,13 +21,12 @@ import os
 import pathlib
 import subprocess
 
-
-project = 'Scalpel'
-copyright = '2022, Jiawei Wang and Li Li'
-author = 'Jiawei Wang and Li Li'
+project = "Scalpel"
+copyright = "2022, Jiawei Wang and Li Li"
+author = "Jiawei Wang and Li Li"
 
 # The full version, including alpha/beta/rc tags
-release = '1.0beta'
+release = "1.0beta"
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,18 +35,18 @@ release = '1.0beta'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'myst_parser', 
-    'sphinx.ext.doctest',
-    'sphinx_rtd_theme',
-    'sphinxcontrib.spelling',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode',
-    'pydoctor.sphinx_ext.build_apidocs',
+    "myst_parser",
+    "sphinx.ext.doctest",
+    "sphinx_rtd_theme",
+    "sphinxcontrib.spelling",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
+    "pydoctor.sphinx_ext.build_apidocs",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -65,11 +64,11 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # interpshinx
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # API docs configuration
 
@@ -97,19 +96,19 @@ if _git_reference == "HEAD":
     _git_reference = subprocess.getoutput("git rev-parse HEAD").strip()
 
 pydoctor_args = [
-    '--project-name=Scalpel',
-    f'--project-version={release}',
-    '--project-url=../',
-    '--docformat=google', 
-    '--theme=readthedocs',
-    '--intersphinx=https://docs.python.org/3/objects.inv',
-    f'--html-viewsource-base=https://github.com/SMAT-Lab/Scalpel/tree/{_git_reference}/',
-    '--html-output={outdir}/api',
-    f'--project-base-dir={_project_root}',
-    f'{_project_root}/src/scalpel'
-    ]
+    "--project-name=Scalpel",
+    f"--project-version={release}",
+    "--project-url=../",
+    "--docformat=google",
+    "--theme=readthedocs",
+    "--intersphinx=https://docs.python.org/3/objects.inv",
+    f"--html-viewsource-base=https://github.com/SMAT-Lab/Scalpel/tree/{_git_reference}/",
+    "--html-output={outdir}/api",
+    f"--project-base-dir={_project_root}",
+    f"{_project_root}/src/scalpel",
+]
 
 if on_rtd:
-    pydoctor_url_path = '/en/{rtd_version}/api/'
+    pydoctor_url_path = "/en/{rtd_version}/api/"
 else:
-    pydoctor_url_path = '/api/'
+    pydoctor_url_path = "/api/"

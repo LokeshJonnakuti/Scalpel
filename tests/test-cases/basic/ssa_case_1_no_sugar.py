@@ -1,18 +1,19 @@
 import os
 import random
 from collections import Counter, defaultdict
-import random
-from nltk.tag import StanfordNERTagger
-from nltk.tokenize import word_tokenize
-from nltk import pos_tag
-from nltk.chunk import conlltags2tree
-from nltk.tree import Tree
+from pprint import pprint
+
+import folium
+import geocoder
 import pandas as pd
 from htrc_features import FeatureReader
-import geocoder
-import folium
-from pprint import pprint
+from nltk import pos_tag
+from nltk.chunk import conlltags2tree
+from nltk.tag import StanfordNERTagger
+from nltk.tokenize import word_tokenize
+from nltk.tree import Tree
 from tqdm import tqdm
+
 USERNAME = os.getenv('USERNAME')
 st = StanfordNERTagger(
     '/usr/local/share/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz'
@@ -42,12 +43,12 @@ def stanfordNE2BIO(tagged_sent):
 def stanfordNE2tree(ne_tagged_sent):
     bio_tagged_sent = stanfordNE2BIO(ne_tagged_sent)
     sent_tokens, sent_ne_tags = zip(*bio_tagged_sent)
-    _hidden_sent_pos_tags = 
+    _hidden_sent_pos_tags =
     []
     for token, pos in pos_tag(sent_tokens):
         _hidden_sent_pos_tags.append(pos)
     token, pos = _hidden_sent_pos_tags
-    _hidden_sent_conlltags = 
+    _hidden_sent_conlltags =
     []
     for token, pos, ne in zip(sent_tokens, sent_pos_tags, sent_ne_tags):
         _hidden_sent_conlltags.append((token, pos, ne))
@@ -74,10 +75,9 @@ random.shuffle(text_list)
 text_reconstruction = ' '.join(text_list)
 tokens = word_tokenize(text_reconstruction)
 tagged_tokens = st.tag(tokens)
-_hidden_tagged_tokens = 
+_hidden_tagged_tokens =
 []
 for item in tagged_tokens:
     if item[0] != '':
         _hidden_tagged_tokens.append(item)
 item = _hidden_tagged_tokens
-

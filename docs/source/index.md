@@ -3,11 +3,11 @@
 
 Scalpel is a Python Static Analysis Framework. It provides essential program analysis functions for facilitating the implementation of client applications focusing on statically resolving dedicated problems. Scalpel includes several fundamental static analysis functions, such as Call graph construction, Control-flow graph construction, Alias analysis, and type Inference.
 These functions can be reused by developers to implement client applications that focus on statically resolving dedicated Python problems, such as Detecting bugs, Fixing vulnerabilities, Profiling code and Refactoring code.
-Scalpel is a powerful tool that can help developers to improve the quality of their Python code. It is still under development, but it has the potential to become a valuable resource for the Python community. 
+Scalpel is a powerful tool that can help developers to improve the quality of their Python code. It is still under development, but it has the potential to become a valuable resource for the Python community.
 <img src="https://github.com/SMAT-Lab/Scalpel/blob/main/docs/source/_static/resources/Scalpel.svg" width="550">
 
 # Current Capabilities
-Even though Scalpel is in a development phase, it provides a wide range of fundamental static analysis techniques in Python, including : 
+Even though Scalpel is in a development phase, it provides a wide range of fundamental static analysis techniques in Python, including :
 - Call Graph Construction
 - Control-Flow Graph Construction
 - Type Inference
@@ -73,7 +73,7 @@ Scalpel Framework was first introduced by Li Li,  Jiawei Wang, and  Haowei Quan 
 
 # Acknowledgement
 
-This project has been inspired and supported by many existing works. Some implementation of functionalities is taken from published work. If you think your work appears in this project but is not mentioned yet, please let us know by any means. 
+This project has been inspired and supported by many existing works. Some implementation of functionalities is taken from published work. If you think your work appears in this project but is not mentioned yet, please let us know by any means.
 
 1. [Fuzzyingbook](https://www.fuzzingbook.org/).
 
@@ -81,9 +81,8 @@ This project has been inspired and supported by many existing works. Some implem
 
 3. [StaticCFG](https://github.com/coetaur0/staticfg).
 
-4. [PyCG: Practical Call Graph Generation in Python. In 43rd International Conference on Software Engineering, 2021](https://vitsalis.com/papers/pycg.pdf). 
+4. [PyCG: Practical Call Graph Generation in Python. In 43rd International Conference on Software Engineering, 2021](https://vitsalis.com/papers/pycg.pdf).
 5. [A Simple, Fast Dominance Algorithm](https://www.cs.rice.edu/~keith/EMBED/dom.pdf) Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy
 6. [COS598C Advanced Compilers](https://www.cs.princeton.edu/courses/archive/spr04/cos598C/lectures/02-ControlFlow.pdf), Princeton University
 7. [Restoring Execution Environments of Jupyter Notebooks](https://arxiv.org/ftp/arxiv/papers/2103/2103.02959.pdf)
 8. [Static Single Assignment Book](https://compilers.cs.uni-saarland.de/papers/bbhlmz13cc.pdf)
-

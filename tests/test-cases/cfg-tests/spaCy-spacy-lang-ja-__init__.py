@@ -1,13 +1,10 @@
-from typing import Optional, Union, Dict, Any
-from pathlib import Path
-import srsly
 from collections import namedtuple
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
 
-from .stop_words import STOP_WORDS
-from .syntax_iterators import SYNTAX_ITERATORS
-from .tag_map import TAG_MAP
-from .tag_orth_map import TAG_ORTH_MAP
-from .tag_bigram_map import TAG_BIGRAM_MAP
+import srsly
+
+from ... import util
 from ...compat import copy_reg
 from ...errors import Errors
 from ...language import Language
@@ -15,9 +12,12 @@ from ...scorer import Scorer
 from ...symbols import POS
 from ...tokens import Doc
 from ...training import validate_examples
-from ...util import DummyTokenizer, registry, load_config_from_str
-from ... import util
-
+from ...util import DummyTokenizer, load_config_from_str, registry
+from .stop_words import STOP_WORDS
+from .syntax_iterators import SYNTAX_ITERATORS
+from .tag_bigram_map import TAG_BIGRAM_MAP
+from .tag_map import TAG_MAP
+from .tag_orth_map import TAG_ORTH_MAP
 
 DEFAULT_CONFIG = """
 [nlp]
@@ -83,10 +83,10 @@ class JapaneseTokenizer(DummyTokenizer):
                 "-".join([xx for xx in token.part_of_speech()[:4] if xx != "*"]),  # tag
                 ",".join([xx for xx in token.part_of_speech()[4:] if xx != "*"]),  # inf
                 token.dictionary_form(),  # lemma
-                token.reading_form(),  # user_data['reading_forms']
-                sub_tokens_list[idx]
-                if sub_tokens_list
-                else None,  # user_data['sub_tokens']
+                token.reading_form(),
+                (  # user_data['reading_forms']
+                    sub_tokens_list[idx] if sub_tokens_list else None
+                ),  # user_data['sub_tokens']
             )
             for idx, token in enumerate(sudachipy_tokens)
             if len(token.surface()) > 0

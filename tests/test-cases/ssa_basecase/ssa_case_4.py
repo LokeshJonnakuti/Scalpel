@@ -5,7 +5,6 @@ count = 0
 start_counting = commit_hash is None
 
 for commit in RepositoryMining(path_to_repo, reversed_order=True).traverse_commits():
-
     if not start_counting and commit_hash == commit.hash:
         start_counting = True
 
@@ -25,4 +24,3 @@ for commit in RepositoryMining(path_to_repo, reversed_order=True).traverse_commi
             filepath = modified_file.old_path
 
             break
-

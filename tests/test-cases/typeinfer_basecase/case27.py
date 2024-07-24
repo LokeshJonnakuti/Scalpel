@@ -18,4 +18,3 @@ class User:
     @staticmethod
     def misc_calc():
         return 10
-

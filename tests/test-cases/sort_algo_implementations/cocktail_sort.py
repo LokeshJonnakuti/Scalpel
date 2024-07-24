@@ -6,21 +6,22 @@ import math
 
 from common.helpers import default_compare
 
+
 def sort(array, compare=default_compare):
-  start = -1
-  end = len(array) - 2
-  swapped = True
-  while swapped:
-    swapped = False
-    for i in range(start + 1, end):
-      if compare(array[i], array[i + 1]) > 0:
-        array[i], array[i + 1] = array[i + 1], array[i]
-        swapped = True
-    if not swapped:
-      break
-    swapped = False
-    for i in range(end, start, -1):
-      if compare(array[i], array[i + 1]) > 0:
-        array[i], array[i + 1] = array[i + 1], array[i]
-        swapped = True
-  return array
+    start = -1
+    end = len(array) - 2
+    swapped = True
+    while swapped:
+        swapped = False
+        for i in range(start + 1, end):
+            if compare(array[i], array[i + 1]) > 0:
+                array[i], array[i + 1] = array[i + 1], array[i]
+                swapped = True
+        if not swapped:
+            break
+        swapped = False
+        for i in range(end, start, -1):
+            if compare(array[i], array[i + 1]) > 0:
+                array[i], array[i + 1] = array[i + 1], array[i]
+                swapped = True
+    return array

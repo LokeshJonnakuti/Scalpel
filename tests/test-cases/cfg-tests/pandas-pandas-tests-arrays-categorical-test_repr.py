@@ -1,5 +1,4 @@
 import numpy as np
-
 from pandas import (
     Categorical,
     CategoricalIndex,
@@ -84,7 +83,6 @@ Categories (3, object): ['ああああ', 'いいいいい', 'うううううう�
         # unicode option should not affect to Categorical, as it doesn't care
         # the repr width
         with option_context("display.unicode.east_asian_width", True):
-
             c = Categorical(["ああああ", "いいいいい", "ううううううう"] * 20)
             expected = """['ああああ', 'いいいいい', 'ううううううう', 'ああああ', 'いいいいい', ..., 'いいいいい', 'ううううううう', 'ああああ', 'いいいいい', 'ううううううう']
 Length: 60

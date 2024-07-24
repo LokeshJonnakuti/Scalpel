@@ -3,14 +3,14 @@
 Static Single Assignment (SSA)  module provides compiler-level intermediate representations (IR) for code analysis. Static Single Assignment (SSA) is a technique of IR in the compiling theory, it also shows great benefits to static analysis tasks such as symbolic execution, constant propagation, dead code elimination, etc. By renaming each variable assignment with different names, we can obtain explicit use-def chains, therefore precisely tracking how data flow in the program.
 
 
-Constant propagation is also a mature technique in static analysis. It is the process of evaluating or recognizing the actual constant values or expressions at a particular program point. This is realized by utilizing control flow and data flow information. Determining the possible values for variables before runtime gives great benefits to software analysis. For instance, with constant value propagation, we can detect and remove dead code or perform type checking. 
+Constant propagation is also a mature technique in static analysis. It is the process of evaluating or recognizing the actual constant values or expressions at a particular program point. This is realized by utilizing control flow and data flow information. Determining the possible values for variables before runtime gives great benefits to software analysis. For instance, with constant value propagation, we can detect and remove dead code or perform type checking.
 
-Alias analysis is to locate the variable pairs in the source code that point to the same location of memory. This can be useful for flow-sensitive analysis of data flows. 
+Alias analysis is to locate the variable pairs in the source code that point to the same location of memory. This can be useful for flow-sensitive analysis of data flows.
 
- 
+
 In Scalpel, we implement constant propagation along with the SSA for execution efficiency.
 
-## How to use the SSA and Constant Propagation module 
+## How to use the SSA and Constant Propagation module
 
 The demo input Python program we will be using is as follows.
 ```python
@@ -24,19 +24,19 @@ else:
 total = c+a
 """
 ```
-It can be seen from the above code, the variable `a` has two possible values. By utilizing the phi functions in SSA, we are able to infer that the actual return value will have two potential values. We follow the algorithms from [4]. The input parameter for SSA computing is the CFG as it represents how the code blocks are organized in the program execution flow. 
+It can be seen from the above code, the variable `a` has two possible values. By utilizing the phi functions in SSA, we are able to infer that the actual return value will have two potential values. We follow the algorithms from [4]. The input parameter for SSA computing is the CFG as it represents how the code blocks are organized in the program execution flow.
 
 ```python
 # create a mnode object.
 mnode = MNode("local")
 # feed the code snippet
-mnode.source = code_str 
+mnode.source = code_str
 mnode.gen_ast()
 # get the cfg
-cfg = mnode.gen_cfg() 
+cfg = mnode.gen_cfg()
 m_ssa = SSA()
 # do the job
-ssa_results, const_dict = m_ssa.compute_SSA(cfg) 
+ssa_results, const_dict = m_ssa.compute_SSA(cfg)
 for block_id, stmt_res in ssa_results.items():
   print("These are the results for block ".format(blck_id))
   print(stmt_res)
@@ -46,12 +46,12 @@ print(ssa_results)
 
 ```
 
-Please note that the function `compute_SSA` returns two dictionaries. For the first one, the key values are block numbers in the given CFG, the value is a list of dictionaries, each of which corresponds to one statement in the block. For instance, the `ssa_results[3]` (block id is `3` in this case ) is a list of SSA representations for the last block. If we inspect the last block ( the variable `total` is assigned), the results are 
+Please note that the function `compute_SSA` returns two dictionaries. For the first one, the key values are block numbers in the given CFG, the value is a list of dictionaries, each of which corresponds to one statement in the block. For instance, the `ssa_results[3]` (block id is `3` in this case ) is a list of SSA representations for the last block. If we inspect the last block ( the variable `total` is assigned), the results are
 
 ```python
  3: [{'c': {0}, 'a': {1, 2}}]
 ```
-This is due to that the variable `a` can take values from two assignments. This can be easily observed from the following diagram. 
+This is due to that the variable `a` can take values from two assignments. This can be easily observed from the following diagram.
 
 
 ![Fibonacci CFG](../../_static/resources/ssa_diagram.svg)
@@ -70,13 +70,13 @@ As stated above, the `const_dict` stores all values that are assigned to a given
 # create a mnode object.
 mnode = MNode("local")
 # feed the code snippet
-mnode.source = code_str 
+mnode.source = code_str
 mnode.gen_ast()
 # get the cfg
-cfg = mnode.gen_cfg() 
+cfg = mnode.gen_cfg()
 m_ssa = SSA()
 # do the job
-ssa_results, const_dict = m_ssa.compute_SSA(cfg) 
+ssa_results, const_dict = m_ssa.compute_SSA(cfg)
 alias_name_pairs = []
 for name, value in const_dict.items():
   if isinstance(value, ast.Name):

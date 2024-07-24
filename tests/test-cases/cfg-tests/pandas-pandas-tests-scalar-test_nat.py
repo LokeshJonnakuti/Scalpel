@@ -1,17 +1,10 @@
-from datetime import (
-    datetime,
-    timedelta,
-)
 import operator
+from datetime import datetime, timedelta
 
 import numpy as np
+import pandas._testing as tm
 import pytest
 import pytz
-
-from pandas._libs.tslibs import iNaT
-
-from pandas.core.dtypes.common import is_datetime64_any_dtype
-
 from pandas import (
     DatetimeIndex,
     DatetimeTZDtype,
@@ -25,12 +18,9 @@ from pandas import (
     isna,
     offsets,
 )
-import pandas._testing as tm
-from pandas.core.arrays import (
-    DatetimeArray,
-    PeriodArray,
-    TimedeltaArray,
-)
+from pandas._libs.tslibs import iNaT
+from pandas.core.arrays import DatetimeArray, PeriodArray, TimedeltaArray
+from pandas.core.dtypes.common import is_datetime64_any_dtype
 from pandas.core.ops import roperator
 
 
@@ -43,7 +33,6 @@ from pandas.core.ops import roperator
     ],
 )
 def test_nat_fields(nat, idx):
-
     for field in idx._field_ops:
         # weekday is a property of DTI, but a method
         # on NaT/Timestamp for compat with datetime
@@ -57,7 +46,6 @@ def test_nat_fields(nat, idx):
         assert np.isnan(result)
 
     for field in idx._bool_ops:
-
         result = getattr(NaT, field)
         assert result is False
 

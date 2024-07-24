@@ -1,17 +1,12 @@
-from datetime import (
-    datetime,
-    timedelta,
-)
-from importlib import reload
 import string
 import sys
+from datetime import datetime, timedelta
+from importlib import reload
 
 import numpy as np
-import pytest
-
-from pandas._libs.tslibs import iNaT
+import pandas._testing as tm
 import pandas.util._test_decorators as td
-
+import pytest
 from pandas import (
     NA,
     Categorical,
@@ -25,7 +20,7 @@ from pandas import (
     cut,
     date_range,
 )
-import pandas._testing as tm
+from pandas._libs.tslibs import iNaT
 
 
 class TestAstypeAPI:
@@ -134,8 +129,8 @@ class TestAstype:
             request.node.add_marker(mark)
 
         msg = (
-            fr"The '{dtype.__name__}' dtype has no unit\. "
-            fr"Please pass in '{dtype.__name__}\[ns\]' instead."
+            rf"The '{dtype.__name__}' dtype has no unit\. "
+            rf"Please pass in '{dtype.__name__}\[ns\]' instead."
         )
         with pytest.raises(ValueError, match=msg):
             s.astype(dtype)

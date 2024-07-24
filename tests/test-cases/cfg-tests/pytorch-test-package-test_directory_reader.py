@@ -9,10 +9,10 @@ from unittest import skipIf
 import torch
 from torch.package import PackageExporter, PackageImporter
 from torch.testing._internal.common_utils import (
-    run_tests,
     IS_FBCODE,
     IS_SANDCASTLE,
     IS_WINDOWS,
+    run_tests,
 )
 
 try:
@@ -270,8 +270,10 @@ class DirectoryReaderTest(PackageTestCase):
 
         with self.assertRaisesRegex(
             RuntimeError,
-            "Loading ScriptObjects from a PackageImporter created from a "
-            "directory is not supported. Use a package archive file instead.",
+            (
+                "Loading ScriptObjects from a PackageImporter created from a "
+                "directory is not supported. Use a package archive file instead."
+            ),
         ):
             with TemporaryDirectory() as temp_dir:
                 zip_file.extractall(path=temp_dir)

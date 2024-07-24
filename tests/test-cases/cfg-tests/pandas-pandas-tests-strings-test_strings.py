@@ -1,19 +1,9 @@
-from datetime import (
-    datetime,
-    timedelta,
-)
+from datetime import datetime, timedelta
 
 import numpy as np
-import pytest
-
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    isna,
-)
 import pandas._testing as tm
+import pytest
+from pandas import DataFrame, Index, MultiIndex, Series, isna
 
 
 def assert_series_or_index_equal(left, right):

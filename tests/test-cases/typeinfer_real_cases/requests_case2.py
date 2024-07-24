@@ -12,24 +12,27 @@ import os
 from collections import Mapping
 from datetime import datetime
 
-from .compat import cookielib, OrderedDict, urljoin, urlparse, urlunparse
-from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
-from .models import Request, PreparedRequest
-from .hooks import default_hooks, dispatch_hook
-from .utils import to_key_val_list, default_headers
-from .exceptions import TooManyRedirects, InvalidSchema
-from .structures import CaseInsensitiveDict
-
 from .adapters import HTTPAdapter
-
-from .utils import requote_uri, get_environ_proxies, get_netrc_auth
-
+from .compat import OrderedDict, cookielib, urljoin, urlparse, urlunparse
+from .cookies import RequestsCookieJar, cookiejar_from_dict, extract_cookies_to_jar
+from .exceptions import InvalidSchema, TooManyRedirects
+from .hooks import default_hooks, dispatch_hook
+from .models import PreparedRequest, Request
 from .status_codes import codes
+from .structures import CaseInsensitiveDict
+from .utils import (
+    default_headers,
+    get_environ_proxies,
+    get_netrc_auth,
+    requote_uri,
+    to_key_val_list,
+)
+
 REDIRECT_STATI = (
-    codes.moved, # 301
-    codes.found, # 302
-    codes.other, # 303
-    codes.temporary_moved, # 307
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
 )
 DEFAULT_REDIRECT_LIMIT = 30
 
@@ -49,8 +52,7 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
     # Bypass if not a dictionary (e.g. verify)
     if not (
-            isinstance(session_setting, Mapping) and
-            isinstance(request_setting, Mapping)
+        isinstance(session_setting, Mapping) and isinstance(request_setting, Mapping)
     ):
         return request_setting
 
@@ -58,7 +60,7 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     merged_setting.update(to_key_val_list(request_setting))
 
     # Remove keys that are set to None.
-    for (k, v) in request_setting.items():
+    for k, v in request_setting.items():
         if v is None:
             del merged_setting[k]
 
@@ -66,36 +68,50 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None):
+    def resolve_redirects(
+        self,
+        resp,
+        req,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
+    ):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
 
         # ((resp.status_code is codes.see_other))
-        while ('location' in resp.headers and resp.status_code in REDIRECT_STATI):
+        while "location" in resp.headers and resp.status_code in REDIRECT_STATI:
             prepared_request = req.copy()
 
             resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                raise TooManyRedirects("Exceeded %s redirects." % self.max_redirects)
 
             # Release the connection back into the pool.
             resp.close()
 
-            url = resp.headers['location']
+            url = resp.headers["location"]
             method = req.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
-            if url.startswith('//'):
+            if url.startswith("//"):
                 parsed_rurl = urlparse(resp.url)
-                url = '%s:%s' % (parsed_rurl.scheme, url)
+                url = "%s:%s" % (parsed_rurl.scheme, url)
 
             # The scheme should be lower case...
             parsed = urlparse(url)
-            parsed = (parsed.scheme.lower(), parsed.netloc, parsed.path,
-                      parsed.params, parsed.query, parsed.fragment)
+            parsed = (
+                parsed.scheme.lower(),
+                parsed.netloc,
+                parsed.path,
+                parsed.params,
+                parsed.query,
+                parsed.fragment,
+            )
             url = urlunparse(parsed)
 
             # Facilitate non-RFC2616-compliant 'location' headers
@@ -109,27 +125,28 @@ class SessionRedirectMixin(object):
             prepared_request.url = url
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-            if (resp.status_code == codes.see_other and
-                    method != 'HEAD'):
-                method = 'GET'
+            if resp.status_code == codes.see_other and method != "HEAD":
+                method = "GET"
 
             # Do what the browsers do, despite standards...
-            if (resp.status_code in (codes.moved, codes.found) and
-                    method not in ('GET', 'HEAD')):
-                method = 'GET'
+            if resp.status_code in (codes.moved, codes.found) and method not in (
+                "GET",
+                "HEAD",
+            ):
+                method = "GET"
 
             prepared_request.method = method
 
             # https://github.com/kennethreitz/requests/issues/1084
             if resp.status_code not in (codes.temporary, codes.resume):
-                if 'Content-Length' in prepared_request.headers:
-                    del prepared_request.headers['Content-Length']
+                if "Content-Length" in prepared_request.headers:
+                    del prepared_request.headers["Content-Length"]
 
                 prepared_request.body = None
 
             headers = prepared_request.headers
             try:
-                del headers['Cookie']
+                del headers["Cookie"]
             except KeyError:
                 pass
 
@@ -165,12 +182,23 @@ class Session(SessionRedirectMixin):
     """
 
     __attrs__ = [
-        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
-        'trust_env', 'max_redirects']
+        "headers",
+        "cookies",
+        "auth",
+        "timeout",
+        "proxies",
+        "hooks",
+        "params",
+        "verify",
+        "cert",
+        "prefetch",
+        "adapters",
+        "stream",
+        "trust_env",
+        "max_redirects",
+    ]
 
     def __init__(self):
-
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -217,8 +245,8 @@ class Session(SessionRedirectMixin):
 
         # Default connection adapters.
         self.adapters = OrderedDict()
-        self.mount('https://', HTTPAdapter())
-        self.mount('http://', HTTPAdapter())
+        self.mount("https://", HTTPAdapter())
+        self.mount("http://", HTTPAdapter())
 
     def __enter__(self):
         return self
@@ -246,7 +274,6 @@ class Session(SessionRedirectMixin):
         merged_cookies.update(self.cookies)
         merged_cookies.update(cookies)
 
-
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
         if self.trust_env and not auth and not self.auth:
@@ -258,7 +285,9 @@ class Session(SessionRedirectMixin):
             url=request.url,
             files=request.files,
             data=request.data,
-            headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
+            headers=merge_setting(
+                request.headers, self.headers, dict_class=CaseInsensitiveDict
+            ),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
@@ -266,7 +295,10 @@ class Session(SessionRedirectMixin):
         )
         return p
 
-    def request(self, method, url,
+    def request(
+        self,
+        method,
+        url,
         params=None,
         data=None,
         headers=None,
@@ -279,7 +311,8 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+    ):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -311,20 +344,22 @@ class Session(SessionRedirectMixin):
         """
         # Create the Request.
         req = Request(
-            method = method.upper(),
-            url = url,
-            headers = headers,
-            files = files,
-            data = data or {},
-            params = params or {},
-            auth = auth,
-            cookies = cookies,
-            hooks = hooks,
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            files=files,
+            data=data or {},
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
         )
         prep = self.prepare_request(req)
 
         # Add param cookies to session cookies
-        self.cookies = cookiejar_from_dict(cookies, cookiejar=self.cookies, overwrite=False)
+        self.cookies = cookiejar_from_dict(
+            cookies, cookiejar=self.cookies, overwrite=False
+        )
 
         proxies = proxies or {}
 
@@ -332,16 +367,16 @@ class Session(SessionRedirectMixin):
         if self.trust_env:
             # Set environment's proxies.
             env_proxies = get_environ_proxies(url) or {}
-            for (k, v) in env_proxies.items():
+            for k, v in env_proxies.items():
                 proxies.setdefault(k, v)
 
             # Look for configuration.
             if not verify and verify is not False:
-                verify = os.environ.get('REQUESTS_CA_BUNDLE')
+                verify = os.environ.get("REQUESTS_CA_BUNDLE")
 
             # Curl compatibility.
             if not verify and verify is not False:
-                verify = os.environ.get('CURL_CA_BUNDLE')
+                verify = os.environ.get("CURL_CA_BUNDLE")
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
@@ -351,12 +386,12 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         send_kwargs = {
-            'stream': stream,
-            'timeout': timeout,
-            'verify': verify,
-            'cert': cert,
-            'proxies': proxies,
-            'allow_redirects': allow_redirects,
+            "stream": stream,
+            "timeout": timeout,
+            "verify": verify,
+            "cert": cert,
+            "proxies": proxies,
+            "allow_redirects": allow_redirects,
         }
         resp = self.send(prep, **send_kwargs)
 
@@ -369,8 +404,8 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        kwargs.setdefault('allow_redirects', True)
-        return self.request('GET', url, **kwargs)
+        kwargs.setdefault("allow_redirects", True)
+        return self.request("GET", url, **kwargs)
 
     def options(self, url, **kwargs):
         """Sends a OPTIONS request. Returns :class:`Response` object.
@@ -379,8 +414,8 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        kwargs.setdefault('allow_redirects', True)
-        return self.request('OPTIONS', url, **kwargs)
+        kwargs.setdefault("allow_redirects", True)
+        return self.request("OPTIONS", url, **kwargs)
 
     def head(self, url, **kwargs):
         """Sends a HEAD request. Returns :class:`Response` object.
@@ -389,8 +424,8 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        kwargs.setdefault('allow_redirects', False)
-        return self.request('HEAD', url, **kwargs)
+        kwargs.setdefault("allow_redirects", False)
+        return self.request("HEAD", url, **kwargs)
 
     def post(self, url, data=None, **kwargs):
         """Sends a POST request. Returns :class:`Response` object.
@@ -400,7 +435,7 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('POST', url, data=data, **kwargs)
+        return self.request("POST", url, data=data, **kwargs)
 
     def put(self, url, data=None, **kwargs):
         """Sends a PUT request. Returns :class:`Response` object.
@@ -410,7 +445,7 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('PUT', url, data=data, **kwargs)
+        return self.request("PUT", url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
@@ -420,7 +455,7 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('PATCH', url,  data=data, **kwargs)
+        return self.request("PATCH", url, data=data, **kwargs)
 
     def delete(self, url, **kwargs):
         """Sends a DELETE request. Returns :class:`Response` object.
@@ -429,30 +464,30 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('DELETE', url, **kwargs)
+        return self.request("DELETE", url, **kwargs)
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
         # Set defaults that the hooks can utilize to ensure they always have
         # the correct parameters to reproduce the previous request.
-        kwargs.setdefault('stream', self.stream)
-        kwargs.setdefault('verify', self.verify)
-        kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault("stream", self.stream)
+        kwargs.setdefault("verify", self.verify)
+        kwargs.setdefault("cert", self.cert)
+        kwargs.setdefault("proxies", self.proxies)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
         if not isinstance(request, PreparedRequest):
-            raise ValueError('You can only send PreparedRequests.')
+            raise ValueError("You can only send PreparedRequests.")
 
         # Set up variables needed for resolve_redirects and dispatching of
         # hooks
-        allow_redirects = kwargs.pop('allow_redirects', True)
-        stream = kwargs.get('stream')
-        timeout = kwargs.get('timeout')
-        verify = kwargs.get('verify')
-        cert = kwargs.get('cert')
-        proxies = kwargs.get('proxies')
+        allow_redirects = kwargs.pop("allow_redirects", True)
+        stream = kwargs.get("stream")
+        timeout = kwargs.get("timeout")
+        verify = kwargs.get("verify")
+        cert = kwargs.get("cert")
+        proxies = kwargs.get("proxies")
         hooks = request.hooks
 
         # Get the appropriate adapter to use
@@ -466,7 +501,7 @@ class Session(SessionRedirectMixin):
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r, **kwargs)
+        r = dispatch_hook("response", hooks, r, **kwargs)
 
         # Persist cookies
         if r.history:
@@ -476,9 +511,15 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request, stream=stream,
-                                     timeout=timeout, verify=verify, cert=cert,
-                                     proxies=proxies)
+        gen = self.resolve_redirects(
+            r,
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
@@ -495,8 +536,7 @@ class Session(SessionRedirectMixin):
 
     def get_adapter(self, url):
         """Returns the appropriate connnection adapter for the given URL."""
-        for (prefix, adapter) in self.adapters.items():
-
+        for prefix, adapter in self.adapters.items():
             if url.lower().startswith(prefix):
                 return adapter
 

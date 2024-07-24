@@ -6,7 +6,6 @@
 
 
 class ParentClass:
-
     def __init__(self):
         pass
 

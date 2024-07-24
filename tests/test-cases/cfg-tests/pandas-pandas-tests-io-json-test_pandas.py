@@ -1,31 +1,18 @@
 import datetime
-from datetime import timedelta
-from decimal import Decimal
-from io import StringIO
 import json
 import os
 import sys
+from datetime import timedelta
+from decimal import Decimal
+from io import StringIO
 
 import numpy as np
-import pytest
-
-from pandas.compat import (
-    IS64,
-    PY310,
-    is_platform_windows,
-)
-import pandas.util._test_decorators as td
-
 import pandas as pd
-from pandas import (
-    DataFrame,
-    DatetimeIndex,
-    Series,
-    Timestamp,
-    compat,
-    read_json,
-)
 import pandas._testing as tm
+import pandas.util._test_decorators as td
+import pytest
+from pandas import DataFrame, DatetimeIndex, Series, Timestamp, compat, read_json
+from pandas.compat import IS64, PY310, is_platform_windows
 
 _seriesd = tm.getSeriesData()
 
@@ -312,31 +299,39 @@ class TestPandasContainer:
             ('{"key":b:a:d}', "Expected object or value", "columns"),
             # too few indices
             (
-                '{"columns":["A","B"],'
-                '"index":["2","3"],'
-                '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}',
+                (
+                    '{"columns":["A","B"],'
+                    '"index":["2","3"],'
+                    '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}'
+                ),
                 "|".join(
                     [
                         r"Shape of passed values is \(3, 2\), indices imply \(2, 2\)",
-                        "Passed arrays should have the same length as the rows Index: "
-                        "3 vs 2 rows",
+                        (
+                            "Passed arrays should have the same length as the rows"
+                            " Index: 3 vs 2 rows"
+                        ),
                     ]
                 ),
                 "split",
             ),
             # too many columns
             (
-                '{"columns":["A","B","C"],'
-                '"index":["1","2","3"],'
-                '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}',
+                (
+                    '{"columns":["A","B","C"],'
+                    '"index":["1","2","3"],'
+                    '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}'
+                ),
                 "3 columns passed, passed data had 2 columns",
                 "split",
             ),
             # bad key
             (
-                '{"badkey":["A","B"],'
-                '"index":["2","3"],'
-                '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}',
+                (
+                    '{"badkey":["A","B"],'
+                    '"index":["2","3"],'
+                    '"data":[[1.0,"1"],[2.0,"2"],[null,"3"]]}'
+                ),
                 r"unexpected key\(s\): badkey",
                 "split",
             ),
@@ -751,13 +746,11 @@ class TestPandasContainer:
         tm.assert_frame_equal(result, df)
 
     def test_typ(self):
-
         s = Series(range(6), index=["a", "b", "c", "d", "e", "f"], dtype="int64")
         result = read_json(s.to_json(), typ=None)
         tm.assert_series_equal(result, s)
 
     def test_reconstruction_index(self):
-
         df = DataFrame([[1, 2, 3], [4, 5, 6]])
         result = read_json(df.to_json())
 
@@ -774,7 +767,6 @@ class TestPandasContainer:
                 read_json(path)
 
     def test_axis_dates(self, datetime_series, datetime_frame):
-
         # frame
         json = datetime_frame.to_json()
         result = read_json(json)
@@ -787,7 +779,6 @@ class TestPandasContainer:
         assert result.name is None
 
     def test_convert_dates(self, datetime_series, datetime_frame):
-
         # frame
         df = datetime_frame
         df["date"] = Timestamp("20130101")
@@ -972,7 +963,6 @@ class TestPandasContainer:
         tm.assert_frame_equal(result, result)
 
     def test_misc_example(self):
-
         # parsing unordered input fails
         result = read_json('[{"a": 1, "b": 2}, {"b":2, "a" :1}]', numpy=True)
         expected = DataFrame([[1, 2], [1, 2]], columns=["a", "b"])
@@ -1112,9 +1102,7 @@ DataFrame\\.index values are different \\(100\\.0 %\\)
             columns=["a", "b"],
         )
         expected = (
-            '[["(1+0j)","(nan+0j)"],'
-            '["(2.3+0j)","(nan+0j)"],'
-            '["(4-5j)","(1.2+0j)"]]'
+            '[["(1+0j)","(nan+0j)"],["(2.3+0j)","(nan+0j)"],["(4-5j)","(1.2+0j)"]]'
         )
         assert df.to_json(default_handler=str, orient="values") == expected
 
@@ -1209,11 +1197,7 @@ DataFrame\\.index values are different \\(100\\.0 %\\)
         from pandas.io.json import dumps
 
         exp = '["2013-01-01T05:00:00.000Z","2013-01-02T05:00:00.000Z"]'
-        dfexp = (
-            '{"DT":{'
-            '"0":"2013-01-01T05:00:00.000Z",'
-            '"1":"2013-01-02T05:00:00.000Z"}}'
-        )
+        dfexp = '{"DT":{"0":"2013-01-01T05:00:00.000Z","1":"2013-01-02T05:00:00.000Z"}}'
 
         assert dumps(tz_range, iso_dates=True) == exp
         dti = DatetimeIndex(tz_range)
@@ -1703,8 +1687,10 @@ DataFrame\\.index values are different \\(100\\.0 %\\)
         [
             (
                 DataFrame({"x": [1, 2, 3], "y": ["a", "b", "c"]}),
-                '{"(0, \'x\')":1,"(0, \'y\')":"a","(1, \'x\')":2,'
-                '"(1, \'y\')":"b","(2, \'x\')":3,"(2, \'y\')":"c"}',
+                (
+                    '{"(0, \'x\')":1,"(0, \'y\')":"a","(1, \'x\')":2,'
+                    '"(1, \'y\')":"b","(2, \'x\')":3,"(2, \'y\')":"c"}'
+                ),
             )
         ],
     )

@@ -2,31 +2,18 @@
 Tests that work on both the Python and C engines but do not have a
 specific classification into the other test modules.
 """
+import os
+import sys
 from datetime import datetime
 from inspect import signature
 from io import StringIO
-import os
 from pathlib import Path
-import sys
 
 import numpy as np
-import pytest
-
-from pandas.errors import (
-    EmptyDataError,
-    ParserError,
-    ParserWarning,
-)
-
-from pandas import (
-    DataFrame,
-    Index,
-    Series,
-    Timestamp,
-    compat,
-)
 import pandas._testing as tm
-
+import pytest
+from pandas import DataFrame, Index, Series, Timestamp, compat
+from pandas.errors import EmptyDataError, ParserError, ParserWarning
 from pandas.io.parsers import TextFileReader
 from pandas.io.parsers.c_parser_wrapper import CParserWrapper
 
@@ -812,8 +799,10 @@ def test_deprecated_bad_lines_warns(all_parsers, csv1, on_bad_lines):
     kwds = {f"{on_bad_lines}_bad_lines": False}
     with tm.assert_produces_warning(
         FutureWarning,
-        match=f"The {on_bad_lines}_bad_lines argument has been deprecated "
-        "and will be removed in a future version.\n\n",
+        match=(
+            f"The {on_bad_lines}_bad_lines argument has been deprecated "
+            "and will be removed in a future version.\n\n"
+        ),
     ):
         parser.read_csv(csv1, **kwds)
 

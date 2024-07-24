@@ -3,10 +3,7 @@ https://github.com/pytest-dev/pytest
 """
 import pprint
 import reprlib
-from typing import Any
-from typing import Dict
-from typing import IO
-from typing import Optional
+from typing import IO, Any, Dict, Optional
 
 
 def _try_repr_or_str(obj: object) -> str:

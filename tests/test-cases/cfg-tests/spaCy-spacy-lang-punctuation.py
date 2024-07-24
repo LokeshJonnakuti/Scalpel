@@ -1,7 +1,18 @@
-from .char_classes import LIST_PUNCT, LIST_ELLIPSES, LIST_QUOTES, LIST_CURRENCY
-from .char_classes import LIST_ICONS, HYPHENS, CURRENCY, UNITS
-from .char_classes import CONCAT_QUOTES, ALPHA_LOWER, ALPHA_UPPER, ALPHA, PUNCT
-
+from .char_classes import (
+    ALPHA,
+    ALPHA_LOWER,
+    ALPHA_UPPER,
+    CONCAT_QUOTES,
+    CURRENCY,
+    HYPHENS,
+    LIST_CURRENCY,
+    LIST_ELLIPSES,
+    LIST_ICONS,
+    LIST_PUNCT,
+    LIST_QUOTES,
+    PUNCT,
+    UNITS,
+)
 
 TOKENIZER_PREFIXES = (
     ["§", "%", "=", "—", "–", r"\+(?![0-9])"]

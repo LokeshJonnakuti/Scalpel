@@ -4,13 +4,13 @@ class SClass:
 
     def get_methods(self):
         """
-            return the list of SMethods declared in the class
+        return the list of SMethods declared in the class
         """
         return {}
 
-    #<package.Class ReturnType MethodName(parameterType1, parameterType2)>
+    # <package.Class ReturnType MethodName(parameterType1, parameterType2)>
     def get_method_by_signature(self, method_sig):
         """
-            return the SClass based on the method signature
+        return the SClass based on the method signature
         """
         return None

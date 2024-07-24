@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
+import asyncio
+import configparser
+import fnmatch
+import os
+import re
+import shlex
+import shutil
 import subprocess
 import sys
-import os
-import argparse
-import yaml
-import asyncio
-import shutil
-import re
-import fnmatch
-import shlex
-import configparser
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Union
 
-from typing import List, Dict, Any, Optional, Union, NamedTuple, Set
+import yaml
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -341,7 +341,10 @@ def changed_files() -> Optional[List[str]]:
     except Exception:
         # If the git commands failed for some reason, bail out and use the whole list
         print(
-            "Could not query git for changed files, falling back to testing all files instead",
+            (
+                "Could not query git for changed files, falling back to testing all"
+                " files instead"
+            ),
             file=sys.stderr,
         )
         return None

@@ -1,9 +1,10 @@
-import pytest
 import re
-from spacy.util import get_lang_class
-from spacy.tokenizer import Tokenizer
 
-from ..util import make_tempdir, assert_packed_msg_equal
+import pytest
+from spacy.tokenizer import Tokenizer
+from spacy.util import get_lang_class
+
+from ..util import assert_packed_msg_equal, make_tempdir
 
 
 def load_tokenizer(b):

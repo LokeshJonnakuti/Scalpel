@@ -4,8 +4,8 @@
 # case4.py: MyClass.hash -> dict
 # case4.py: MyClass.get_hash() -> {}
 
-class MyClass:
 
+class MyClass:
     def __init__(self):
         self.hash = {}
 

@@ -1,9 +1,9 @@
-from ..punctuation import TOKENIZER_PREFIXES, TOKENIZER_SUFFIXES, TOKENIZER_INFIXES
-from ..char_classes import ALPHA, merge_chars, split_chars, _currency, _units
-
+from ..char_classes import ALPHA, _currency, _units, merge_chars, split_chars
+from ..punctuation import TOKENIZER_INFIXES, TOKENIZER_PREFIXES, TOKENIZER_SUFFIXES
 
 _units = (
-    _units + "s bit Gbps Mbps mbps Kbps kbps ƒ ppi px "
+    _units
+    + "s bit Gbps Mbps mbps Kbps kbps ƒ ppi px "
     "Hz kHz MHz GHz mAh "
     "ratus rb ribu ribuan "
     "juta jt jutaan mill?iar million bil[l]?iun bilyun billion "

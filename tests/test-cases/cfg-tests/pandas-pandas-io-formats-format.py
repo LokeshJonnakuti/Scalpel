@@ -4,16 +4,13 @@ and latex files. This module also applies to display formatting.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
-from csv import (
-    QUOTE_NONE,
-    QUOTE_NONNUMERIC,
-)
 import decimal
-from functools import partial
-from io import StringIO
 import math
 import re
+from contextlib import contextmanager
+from csv import QUOTE_NONE, QUOTE_NONNUMERIC
+from functools import partial
+from io import StringIO
 from shutil import get_terminal_size
 from typing import (
     IO,
@@ -31,20 +28,11 @@ from typing import (
 from unicodedata import east_asian_width
 
 import numpy as np
-
-from pandas._config.config import (
-    get_option,
-    set_option,
-)
-
+import pandas.core.common as com
+from pandas._config.config import get_option, set_option
 from pandas._libs import lib
 from pandas._libs.missing import NA
-from pandas._libs.tslibs import (
-    NaT,
-    Timedelta,
-    Timestamp,
-    iNaT,
-)
+from pandas._libs.tslibs import NaT, Timedelta, Timestamp, iNaT
 from pandas._libs.tslibs.nattype import NaTType
 from pandas._typing import (
     ArrayLike,
@@ -57,7 +45,9 @@ from pandas._typing import (
     IndexLabel,
     StorageOptions,
 )
-
+from pandas.core.arrays import Categorical, DatetimeArray, TimedeltaArray
+from pandas.core.base import PandasObject
+from pandas.core.construction import extract_array
 from pandas.core.dtypes.common import (
     is_categorical_dtype,
     is_complex_dtype,
@@ -73,41 +63,16 @@ from pandas.core.dtypes.common import (
     is_scalar,
     is_timedelta64_dtype,
 )
-from pandas.core.dtypes.missing import (
-    isna,
-    notna,
-)
-
-from pandas.core.arrays import (
-    Categorical,
-    DatetimeArray,
-    TimedeltaArray,
-)
-from pandas.core.base import PandasObject
-import pandas.core.common as com
-from pandas.core.construction import extract_array
-from pandas.core.indexes.api import (
-    Index,
-    MultiIndex,
-    PeriodIndex,
-    ensure_index,
-)
+from pandas.core.dtypes.missing import isna, notna
+from pandas.core.indexes.api import Index, MultiIndex, PeriodIndex, ensure_index
 from pandas.core.indexes.datetimes import DatetimeIndex
 from pandas.core.indexes.timedeltas import TimedeltaIndex
 from pandas.core.reshape.concat import concat
-
 from pandas.io.common import stringify_path
-from pandas.io.formats.printing import (
-    adjoin,
-    justify,
-    pprint_thing,
-)
+from pandas.io.formats.printing import adjoin, justify, pprint_thing
 
 if TYPE_CHECKING:
-    from pandas import (
-        DataFrame,
-        Series,
-    )
+    from pandas import DataFrame, Series
 
 
 common_docstring = """
@@ -1012,10 +977,7 @@ class DataFrameRenderer:
         render_links : bool, default False
             Convert URLs to HTML links.
         """
-        from pandas.io.formats.html import (
-            HTMLFormatter,
-            NotebookFormatter,
-        )
+        from pandas.io.formats.html import HTMLFormatter, NotebookFormatter
 
         Klass = NotebookFormatter if notebook else HTMLFormatter
 
@@ -1668,7 +1630,7 @@ def is_dates_only(values: np.ndarray | DatetimeArray | Index | DatetimeIndex) ->
 
     values_int = values.asi8
     consider_values = values_int != iNaT
-    one_day_nanos = 86400 * 10 ** 9
+    one_day_nanos = 86400 * 10**9
     even_days = (
         np.logical_and(consider_values, values_int % int(one_day_nanos) != 0).sum() == 0
     )
@@ -1704,7 +1666,6 @@ def _format_datetime64_dateonly(
 def get_format_datetime64(
     is_dates_only: bool, nat_rep: str = "NaT", date_format: str | None = None
 ) -> Callable:
-
     if is_dates_only:
         return lambda x: _format_datetime64_dateonly(
             x, nat_rep=nat_rep, date_format=date_format
@@ -1775,7 +1736,7 @@ def get_format_timedelta64(
 
     consider_values = values_int != iNaT
 
-    one_day_nanos = 86400 * 10 ** 9
+    one_day_nanos = 86400 * 10**9
     # error: Unsupported operand types for % ("ExtensionArray" and "int")
     not_midnight = values_int % one_day_nanos != 0  # type: ignore[operator]
     # error: Argument 1 to "__call__" of "ufunc" has incompatible type
@@ -1811,7 +1772,6 @@ def _make_fixed_width(
     minimum: int | None = None,
     adj: TextAdjustment | None = None,
 ) -> list[str]:
-
     if len(strings) == 0 or justify == "all":
         return strings
 
@@ -1886,7 +1846,7 @@ def _trim_zeros_float(
     necessary.
     """
     trimmed = str_floats
-    number_regex = re.compile(fr"^\s*[\+-]?[0-9]+\{decimal}[0-9]*$")
+    number_regex = re.compile(rf"^\s*[\+-]?[0-9]+\{decimal}[0-9]*$")
 
     def is_number_with_decimal(x):
         return re.match(number_regex, x) is not None
@@ -2005,7 +1965,7 @@ class EngFormatter:
             else:
                 prefix = f"E+{int_pow10:02d}"
 
-        mant = sign * dnum / (10 ** pow10)
+        mant = sign * dnum / (10**pow10)
 
         if self.accuracy is None:  # pragma: no cover
             format_str = "{mant: g}{prefix}"

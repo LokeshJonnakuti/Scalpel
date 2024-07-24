@@ -1,16 +1,15 @@
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
-from .stop_words import STOP_WORDS
-from .tag_map import TAG_MAP
-from .lex_attrs import LEX_ATTRS
-from ...language import Language
-from ...tokens import Doc
 from ...compat import copy_reg
+from ...language import Language
 from ...scorer import Scorer
 from ...symbols import POS
+from ...tokens import Doc
 from ...training import validate_examples
-from ...util import DummyTokenizer, registry, load_config_from_str
-
+from ...util import DummyTokenizer, load_config_from_str, registry
+from .lex_attrs import LEX_ATTRS
+from .stop_words import STOP_WORDS
+from .tag_map import TAG_MAP
 
 DEFAULT_CONFIG = """
 [nlp]
@@ -87,9 +86,10 @@ def try_mecab_import() -> None:
         return MeCab
     except ImportError:
         raise ImportError(
-            "Korean support requires [mecab-ko](https://bitbucket.org/eunjeon/mecab-ko/src/master/README.md), "
-            "[mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic), "
-            "and [natto-py](https://github.com/buruzaemon/natto-py)"
+            "Korean support requires"
+            " [mecab-ko](https://bitbucket.org/eunjeon/mecab-ko/src/master/README.md),"
+            " [mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic), and"
+            " [natto-py](https://github.com/buruzaemon/natto-py)"
         ) from None
 
 

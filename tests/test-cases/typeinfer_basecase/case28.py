@@ -1,8 +1,8 @@
-patterns = ['you cannot perform this operation as root']
+patterns = ["you cannot perform this operation as root"]
 
 
 def match(command):
-    if command.script_parts and command.script_parts[0] != 'sudo':
+    if command.script_parts and command.script_parts[0] != "sudo":
         return False
 
     for pattern in patterns:

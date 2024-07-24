@@ -5,6 +5,7 @@
 # case13.py: second_function -> str
 # case13.py: third_function -> str
 
+
 def first_function():
     return second_function()
 

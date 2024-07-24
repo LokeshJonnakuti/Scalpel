@@ -1,9 +1,9 @@
-import pytest
 import re
+
+import pytest
 from spacy.lang.en import English
 from spacy.tokenizer import Tokenizer
-from spacy.util import compile_prefix_regex, compile_suffix_regex
-from spacy.util import compile_infix_regex
+from spacy.util import compile_infix_regex, compile_prefix_regex, compile_suffix_regex
 
 
 @pytest.fixture
@@ -29,7 +29,10 @@ def custom_en_tokenizer(en_vocab):
 
 
 def test_en_customized_tokenizer_handles_infixes(custom_en_tokenizer):
-    sentence = "The 8 and 10-county definitions are not used for the greater Southern California Megaregion."
+    sentence = (
+        "The 8 and 10-county definitions are not used for the greater Southern"
+        " California Megaregion."
+    )
     context = [word.text for word in custom_en_tokenizer(sentence)]
     assert context == [
         "The",
@@ -51,7 +54,10 @@ def test_en_customized_tokenizer_handles_infixes(custom_en_tokenizer):
         ".",
     ]
     # the trailing '-' may cause Assertion Error
-    sentence = "The 8- and 10-county definitions are not used for the greater Southern California Megaregion."
+    sentence = (
+        "The 8- and 10-county definitions are not used for the greater Southern"
+        " California Megaregion."
+    )
     context = [word.text for word in custom_en_tokenizer(sentence)]
     assert context == [
         "The",
@@ -76,7 +82,10 @@ def test_en_customized_tokenizer_handles_infixes(custom_en_tokenizer):
 
 
 def test_en_customized_tokenizer_handles_token_match(custom_en_tokenizer):
-    sentence = "The 8 and 10-county definitions a-b not used for the greater Southern California Megaregion."
+    sentence = (
+        "The 8 and 10-county definitions a-b not used for the greater Southern"
+        " California Megaregion."
+    )
     context = [word.text for word in custom_en_tokenizer(sentence)]
     assert context == [
         "The",
@@ -100,7 +109,10 @@ def test_en_customized_tokenizer_handles_token_match(custom_en_tokenizer):
 
 
 def test_en_customized_tokenizer_handles_rules(custom_en_tokenizer):
-    sentence = "The 8 and 10-county definitions are not used for the greater Southern California Megaregion. :)"
+    sentence = (
+        "The 8 and 10-county definitions are not used for the greater Southern"
+        " California Megaregion. :)"
+    )
     context = [word.text for word in custom_en_tokenizer(sentence)]
     assert context == [
         "The",
@@ -125,7 +137,10 @@ def test_en_customized_tokenizer_handles_rules(custom_en_tokenizer):
 
 
 def test_en_customized_tokenizer_handles_rules_property(custom_en_tokenizer):
-    sentence = "The 8 and 10-county definitions are not used for the greater Southern California Megaregion. :)"
+    sentence = (
+        "The 8 and 10-county definitions are not used for the greater Southern"
+        " California Megaregion. :)"
+    )
     rules = custom_en_tokenizer.rules
     del rules[":)"]
     custom_en_tokenizer.rules = rules

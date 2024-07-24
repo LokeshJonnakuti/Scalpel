@@ -63,6 +63,7 @@ def compute_spectrogram_tf(
 
     return tf.abs(stft_tensor) ** spec_exponent
 
+
 #
 # def time_stretch(
 #     spectrogram: tf.Tensor,

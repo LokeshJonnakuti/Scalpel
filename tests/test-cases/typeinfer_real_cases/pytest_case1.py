@@ -1,9 +1,8 @@
-'''
+"""
 From pytest_outcomes.py
-'''
+"""
 import sys
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 
 def importorskip(

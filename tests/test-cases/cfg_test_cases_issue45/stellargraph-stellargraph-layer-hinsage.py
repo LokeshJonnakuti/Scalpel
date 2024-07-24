@@ -21,19 +21,20 @@ Heterogeneous GraphSAGE and compatible aggregator layers
 """
 __all__ = ["HinSAGE", "MeanHinAggregator"]
 
-import tensorflow as tf
-from tensorflow.keras.layers import Layer
-from tensorflow.keras import backend as K, Input
-from tensorflow.keras.layers import Lambda, Dropout, Reshape
-from tensorflow.keras.utils import Sequence
-from tensorflow.keras import activations, initializers, regularizers, constraints
-from typing import List, Callable, Tuple, Dict, Union, AnyStr
 import itertools as it
 import operator as op
 import warnings
+from typing import AnyStr, Callable, Dict, List, Tuple, Union
 
+import tensorflow as tf
+from tensorflow.keras import Input, activations
+from tensorflow.keras import backend as K
+from tensorflow.keras import constraints, initializers, regularizers
+from tensorflow.keras.layers import Dropout, Lambda, Layer, Reshape
+from tensorflow.keras.utils import Sequence
+
+from ..mapper import HinSAGELinkGenerator, HinSAGENodeGenerator
 from .misc import deprecated_model_function
-from ..mapper import HinSAGENodeGenerator, HinSAGELinkGenerator
 
 HinSAGEAggregator = Layer
 
@@ -119,16 +120,18 @@ class MeanHinAggregator(HinSAGEAggregator):
         # then do not create weights as they are not used.
         self.nr = len(input_shape) - 1
         self.w_neigh = [
-            self.add_weight(
-                name="w_neigh_" + str(r),
-                shape=(int(input_shape[1 + r][3]), self.half_output_dim),
-                initializer=self.kernel_initializer,
-                regularizer=self.kernel_regularizer,
-                constraint=self.kernel_constraint,
-                trainable=True,
+            (
+                self.add_weight(
+                    name="w_neigh_" + str(r),
+                    shape=(int(input_shape[1 + r][3]), self.half_output_dim),
+                    initializer=self.kernel_initializer,
+                    regularizer=self.kernel_regularizer,
+                    constraint=self.kernel_constraint,
+                    trainable=True,
+                )
+                if input_shape[1 + r][2] > 0
+                else None
             )
-            if input_shape[1 + r][2] > 0
-            else None
             for r in range(self.nr)
         ]
 
@@ -221,8 +224,9 @@ def _require_without_generator(value, name):
         return value
     else:
         raise ValueError(
-            f"{name}: expected a value for 'input_neighbor_tree', 'n_samples', 'input_dim', and "
-            f"'multiplicity' when 'generator' is not provided, found {name}=None."
+            f"{name}: expected a value for 'input_neighbor_tree', 'n_samples',"
+            " 'input_dim', and 'multiplicity' when 'generator' is not provided, found"
+            f" {name}=None."
         )
 
 
@@ -399,9 +403,13 @@ class HinSAGE:
 
         # Dict of {node type: dimension} per layer
         self.dims = [
-            dim
-            if isinstance(dim, dict)
-            else {k: dim for k, _ in ([self.subtree_schema] + self.neigh_trees)[layer]}
+            (
+                dim
+                if isinstance(dim, dict)
+                else {
+                    k: dim for k, _ in ([self.subtree_schema] + self.neigh_trees)[layer]
+                }
+            )
             for layer, dim in enumerate([self.input_dims] + layer_sizes)
         ]
 
@@ -440,10 +448,14 @@ class HinSAGE:
              generator: The supplied generator.
         """
         if not isinstance(generator, (HinSAGELinkGenerator, HinSAGENodeGenerator)):
-            errmsg = "Generator should be an instance of HinSAGELinkGenerator or HinSAGENodeGenerator"
+            errmsg = (
+                "Generator should be an instance of HinSAGELinkGenerator or"
+                " HinSAGENodeGenerator"
+            )
             if isinstance(generator, (NodeSequence, LinkSequence)):
                 errmsg = (
-                    "Passing a Sequence object as the generator to HinSAGE is no longer supported. "
+                    "Passing a Sequence object as the generator to HinSAGE is no longer"
+                    " supported. "
                     + errmsg
                 )
             raise TypeError(errmsg)
@@ -608,7 +620,10 @@ class HinSAGE:
 
     def default_model(self, flatten_output=True):
         warnings.warn(
-            "The .default_model() method is deprecated. Please use .in_out_tensors() method instead.",
+            (
+                "The .default_model() method is deprecated. Please use"
+                " .in_out_tensors() method instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )

@@ -1,4 +1,4 @@
-#No phi nodes are placed
+# No phi nodes are placed
 
 a = 10
 b = 10

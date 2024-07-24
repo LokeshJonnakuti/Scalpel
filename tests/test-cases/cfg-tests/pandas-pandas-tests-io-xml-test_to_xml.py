@@ -1,22 +1,13 @@
 from __future__ import annotations
 
-from io import (
-    BytesIO,
-    StringIO,
-)
 import os
+from io import BytesIO, StringIO
 
 import numpy as np
-import pytest
-
-import pandas.util._test_decorators as td
-
-from pandas import (
-    DataFrame,
-    Index,
-)
 import pandas._testing as tm
-
+import pandas.util._test_decorators as td
+import pytest
+from pandas import DataFrame, Index
 from pandas.io.common import get_handle
 from pandas.io.xml import read_xml
 
@@ -202,9 +193,7 @@ def test_str_output(datapath, parser):
 
 
 def test_wrong_file_path(parser):
-    with pytest.raises(
-        FileNotFoundError, match=("No such file or directory|没有那个文件或目录")
-    ):
+    with pytest.raises(FileNotFoundError, match="No such file or directory|没有那个文件或目录"):
         geom_df.to_xml("/my/fake/path/output.xml", parser=parser)
 
 
@@ -444,12 +433,12 @@ doc:degrees="180" doc:sides="3.0"/>
 
 
 def test_attrs_unknown_column(parser):
-    with pytest.raises(KeyError, match=("no valid column")):
+    with pytest.raises(KeyError, match="no valid column"):
         geom_df.to_xml(attr_cols=["shape", "degree", "sides"], parser=parser)
 
 
 def test_attrs_wrong_type(parser):
-    with pytest.raises(TypeError, match=("is not a valid type for attr_cols")):
+    with pytest.raises(TypeError, match="is not a valid type for attr_cols"):
         geom_df.to_xml(attr_cols='"shape", "degree", "sides"', parser=parser)
 
 
@@ -486,12 +475,12 @@ def test_elems_cols_nan_output(datapath, parser):
 
 
 def test_elems_unknown_column(parser):
-    with pytest.raises(KeyError, match=("no valid column")):
+    with pytest.raises(KeyError, match="no valid column"):
         geom_df.to_xml(elem_cols=["shape", "degree", "sides"], parser=parser)
 
 
 def test_elems_wrong_type(parser):
-    with pytest.raises(TypeError, match=("is not a valid type for elem_cols")):
+    with pytest.raises(TypeError, match="is not a valid type for elem_cols"):
         geom_df.to_xml(elem_cols='"shape", "degree", "sides"', parser=parser)
 
 
@@ -735,8 +724,7 @@ def test_namespace_prefix(parser):
 
 
 def test_missing_prefix_in_nmsp(parser):
-    with pytest.raises(KeyError, match=("doc is not included in namespaces")):
-
+    with pytest.raises(KeyError, match="doc is not included in namespaces"):
         geom_df.to_xml(
             namespaces={"": "http://example.com"}, prefix="doc", parser=parser
         )
@@ -857,7 +845,7 @@ def test_wrong_encoding_option_lxml(datapath, parser, encoding):
 
 
 def test_misspelled_encoding(parser):
-    with pytest.raises(LookupError, match=("unknown encoding")):
+    with pytest.raises(LookupError, match="unknown encoding"):
         geom_df.to_xml(encoding="uft-8", parser=parser)
 
 
@@ -939,14 +927,14 @@ def test_no_pretty_print_no_decl(parser):
 @td.skip_if_installed("lxml")
 def test_default_parser_no_lxml():
     with pytest.raises(
-        ImportError, match=("lxml not found, please install or use the etree parser.")
+        ImportError, match="lxml not found, please install or use the etree parser."
     ):
         geom_df.to_xml()
 
 
 def test_unknown_parser():
     with pytest.raises(
-        ValueError, match=("Values for parser can only be lxml or etree.")
+        ValueError, match="Values for parser can only be lxml or etree."
     ):
         geom_df.to_xml(parser="bs4")
 
@@ -1022,7 +1010,7 @@ def test_stylesheet_wrong_path(datapath):
 
     with pytest.raises(
         XMLSyntaxError,
-        match=("Start tag expected, '<' not found"),
+        match="Start tag expected, '<' not found",
     ):
         geom_df.to_xml(stylesheet=xsl)
 
@@ -1033,7 +1021,7 @@ def test_empty_string_stylesheet(val):
     from lxml.etree import XMLSyntaxError
 
     with pytest.raises(
-        XMLSyntaxError, match=("Document is empty|Start tag expected, '<' not found")
+        XMLSyntaxError, match="Document is empty|Start tag expected, '<' not found"
     ):
         geom_df.to_xml(stylesheet=val)
 
@@ -1063,7 +1051,7 @@ def test_incorrect_xsl_syntax():
     </xsl:template>
 </xsl:stylesheet>"""
 
-    with pytest.raises(XMLSyntaxError, match=("Opening and ending tag mismatch")):
+    with pytest.raises(XMLSyntaxError, match="Opening and ending tag mismatch"):
         geom_df.to_xml(stylesheet=xsl)
 
 
@@ -1092,7 +1080,7 @@ def test_incorrect_xsl_eval():
     </xsl:template>
 </xsl:stylesheet>"""
 
-    with pytest.raises(XSLTParseError, match=("failed to compile")):
+    with pytest.raises(XSLTParseError, match="failed to compile"):
         geom_df.to_xml(stylesheet=xsl)
 
 
@@ -1112,7 +1100,7 @@ def test_incorrect_xsl_apply(parser):
     </xsl:template>
 </xsl:stylesheet>"""
 
-    with pytest.raises(XSLTApplyError, match=("Cannot resolve URI")):
+    with pytest.raises(XSLTApplyError, match="Cannot resolve URI"):
         with tm.ensure_clean("test.xml") as path:
             geom_df.to_xml(path, stylesheet=xsl)
 
@@ -1129,9 +1117,7 @@ def test_stylesheet_with_etree(datapath):
         </xsl:copy>
     </xsl:template>"""
 
-    with pytest.raises(
-        ValueError, match=("To use stylesheet, you need lxml installed")
-    ):
+    with pytest.raises(ValueError, match="To use stylesheet, you need lxml installed"):
         geom_df.to_xml(parser="etree", stylesheet=xsl)
 
 

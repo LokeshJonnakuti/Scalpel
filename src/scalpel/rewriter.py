@@ -6,6 +6,7 @@ Code rewriting can bring great benefits such as API extraction and dynamic testi
 
 import ast
 import os
+import secrets
 import sys
 
 import astor
@@ -13,7 +14,6 @@ from astor.source_repr import count
 
 from scalpel.core.util import UnitWalker
 from scalpel.core.vars_visitor import get_vars
-import secrets
 
 
 class Rewriter:

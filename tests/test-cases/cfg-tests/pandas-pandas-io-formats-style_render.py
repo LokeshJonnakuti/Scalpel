@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from functools import partial
-import re
 from typing import (
     Any,
     Callable,
@@ -17,25 +17,14 @@ from typing import (
 from uuid import uuid4
 
 import numpy as np
-
+import pandas.core.common as com
+from pandas import DataFrame, Index, IndexSlice, MultiIndex, Series, isna
 from pandas._config import get_option
-
 from pandas._libs import lib
 from pandas._typing import TypedDict
-from pandas.compat._optional import import_optional_dependency
-
-from pandas.core.dtypes.generic import ABCSeries
-
-from pandas import (
-    DataFrame,
-    Index,
-    IndexSlice,
-    MultiIndex,
-    Series,
-    isna,
-)
 from pandas.api.types import is_list_like
-import pandas.core.common as com
+from pandas.compat._optional import import_optional_dependency
+from pandas.core.dtypes.generic import ABCSeries
 
 jinja2 = import_optional_dependency("jinja2", extra="DataFrame.style requires jinja2.")
 from markupsafe import escape as escape_html  # markupsafe is jinja2 dependency
@@ -78,7 +67,6 @@ class StylerRenderer:
         caption: str | tuple | None = None,
         cell_ids: bool = True,
     ):
-
         # validate ordered args
         if isinstance(data, Series):
             data = data.to_frame()
@@ -542,9 +530,9 @@ class StylerRenderer:
                 row_body_headers = [
                     {
                         **col,
-                        "display_value": col["display_value"]
-                        if col["is_visible"]
-                        else "",
+                        "display_value": (
+                            col["display_value"] if col["is_visible"] else ""
+                        ),
                     }
                     for col in row
                     if col["type"] == "th"
@@ -1298,7 +1286,7 @@ def _parse_latex_cell_styles(
     """
     if convert_css:
         latex_styles = _parse_latex_css_conversion(latex_styles)
-    for (command, options) in latex_styles[::-1]:  # in reverse for most recent style
+    for command, options in latex_styles[::-1]:  # in reverse for most recent style
         formatter = {
             "--wrap": f"{{\\{command}--to_parse {display_value}}}",
             "--nowrap": f"\\{command}--to_parse {display_value}",
@@ -1430,7 +1418,7 @@ def _parse_latex_css_conversion(styles: CSSList) -> CSSList:
     }
 
     latex_styles: CSSList = []
-    for (attribute, value) in styles:
+    for attribute, value in styles:
         if isinstance(value, str) and "--latex" in value:
             # return the style without conversion but drop '--latex'
             latex_styles.append((attribute, value.replace("--latex", "")))

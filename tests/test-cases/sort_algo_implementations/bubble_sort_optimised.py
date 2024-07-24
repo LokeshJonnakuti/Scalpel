@@ -4,13 +4,14 @@
 
 from common.helpers import default_compare
 
+
 def sort(array, compare=default_compare):
-  unsorted_below = len(array)
-  while unsorted_below != 0:
-    last_swap = 0
-    for i in range(1, unsorted_below):
-      if compare(array[i - 1], array[i]) > 0:
-        array[i], array[i - 1] = array[i - 1], array[i]
-        last_swap = i
-    unsorted_below = last_swap
-  return array
+    unsorted_below = len(array)
+    while unsorted_below != 0:
+        last_swap = 0
+        for i in range(1, unsorted_below):
+            if compare(array[i - 1], array[i]) > 0:
+                array[i], array[i - 1] = array[i - 1], array[i]
+                last_swap = i
+        unsorted_below = last_swap
+    return array

@@ -1,9 +1,11 @@
+import ast
 import os
 import sys
-import ast
+
 import astor
-from scalpel.core.mnode import MNode
+
 from scalpel.core.func_call_visitor import get_func_calls
+from scalpel.core.mnode import MNode
 from scalpel.core.vars_visitor import get_vars
 from scalpel.SSA.ssa import SSA
 
@@ -12,8 +14,8 @@ from scalpel.SSA.ssa import SSA
 def single_case(code_str, expected_name):
     ast_node = ast.parse(code_str)
     calls = get_func_calls(ast_node)
-    assert len(calls)==1
-    assert calls[0]['name'] == expected_name
+    assert len(calls) == 1
+    assert calls[0]["name"] == expected_name
 
 
 def test_function_calls():
@@ -43,42 +45,40 @@ def test_get_vars():
     code_str = "ada.fit(X_std, y)"
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
-    var_names = [r['name'] for r in var_results]
+    var_names = [r["name"] for r in var_results]
     print(var_names)
-    assert ("ada" in var_names)
-    assert ("X_std" in var_names)
-    assert ("y" in var_names)
+    assert "ada" in var_names
+    assert "X_std" in var_names
+    assert "y" in var_names
     code_str = "(errors**2).sum() / 2.0"
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
-    var_names = [r['name'] for r in var_results if r['name'] is not None]
+    var_names = [r["name"] for r in var_results if r["name"] is not None]
     assert len(var_names) == 1 and "errors" in var_names
 
     code_str = "return float(len(lcs(a, b))) / max(len(a), len(b))"
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
-    var_names = [r['name'] for r in var_results if r['name'] is not None]
-    assert "lcs"  in var_names
+    var_names = [r["name"] for r in var_results if r["name"] is not None]
+    assert "lcs" in var_names
 
     code_str = """X = dataset.iloc[:, [3, 4]].values"""
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
-    var_names = [r['name'] for r in var_results if r['name'] is not None]
+    var_names = [r["name"] for r in var_results if r["name"] is not None]
     assert "X" in var_names and "dataset" in var_names
 
     code_str = """x = np.zeros(([Y.shape[0],X.shape[0]]))"""
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
-    var_names = [r['name'] for r in var_results if r['name'] is not None]
+    var_names = [r["name"] for r in var_results if r["name"] is not None]
     assert "x" in var_names
 
     code_str = """step['Model'] = model_name"""
     ast_node = ast.parse(code_str)
     var_results = get_vars(ast_node)
     print(var_results)
-    var_names = [r['name'] for r in var_results if r['name'] is not None]
-
-
+    var_names = [r["name"] for r in var_results if r["name"] is not None]
 
 
 def main():
@@ -86,5 +86,5 @@ def main():
     test_get_vars()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

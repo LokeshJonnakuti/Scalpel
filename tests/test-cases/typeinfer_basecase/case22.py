@@ -14,5 +14,3 @@ def func_2():
 def func_1():
     my_obj = test_obj()
     return my_obj
-
-

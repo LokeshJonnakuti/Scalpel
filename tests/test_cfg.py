@@ -1,9 +1,12 @@
-import textwrap
-from scalpel.cfg import CFGBuilder
 import ast
+import textwrap
+
+from scalpel.cfg import CFGBuilder
+
 
 def test_cfg_with_all_possible_branches():
-    src = textwrap.dedent("""
+    src = textwrap.dedent(
+        """
         def f():
             x = 1
             try:
@@ -18,10 +21,11 @@ def test_cfg_with_all_possible_branches():
                 x = 5
             finally:
                 y = 1
-            
+
             y += 6
-            return x + y    
-        """)
+            return x + y
+        """
+    )
     ast_f = ast.parse(src).body[0]
     print(ast_f)
 
@@ -47,13 +51,18 @@ def test_cfg_with_all_possible_branches():
     assert isinstance(cfg.get_all_blocks()[6].statements[0], ast.AugAssign)
     assert isinstance(cfg.get_all_blocks()[6].statements[-1], ast.Return)
 
-    
     assert len(cfg.get_all_blocks()[0].exits) == 3
     assert cfg.get_all_blocks()[0].exits[0].target == cfg.get_all_blocks()[1]
-    assert isinstance(cfg.get_all_blocks()[0].exits[0].exitcase, ast.Constant) and cfg.get_all_blocks()[0].exits[0].exitcase.value == True
+    assert (
+        isinstance(cfg.get_all_blocks()[0].exits[0].exitcase, ast.Constant)
+        and cfg.get_all_blocks()[0].exits[0].exitcase.value == True
+    )
 
     assert cfg.get_all_blocks()[0].exits[1].target == cfg.get_all_blocks()[2]
-    assert isinstance(cfg.get_all_blocks()[0].exits[1].exitcase, ast.Name) and cfg.get_all_blocks()[0].exits[1].exitcase.id == "IOError"
+    assert (
+        isinstance(cfg.get_all_blocks()[0].exits[1].exitcase, ast.Name)
+        and cfg.get_all_blocks()[0].exits[1].exitcase.id == "IOError"
+    )
 
     assert cfg.get_all_blocks()[0].exits[2].target == cfg.get_all_blocks()[3]
     assert cfg.get_all_blocks()[0].exits[2].exitcase is None
