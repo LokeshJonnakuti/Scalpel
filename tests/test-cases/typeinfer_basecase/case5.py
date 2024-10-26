@@ -6,6 +6,7 @@
 # case5.py: z -> int
 # case5.py: my_function() -> int
 
+
 def my_function():
     x = 5
     y = 10

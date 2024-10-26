@@ -5,12 +5,7 @@ https://github.com/pytest-dev/pytest
 functions creating them."""
 import sys
 import warnings
-from typing import Any
-from typing import Callable
-from typing import cast
-from typing import Optional
-from typing import Type
-from typing import TypeVar
+from typing import Any, Callable, Optional, Type, TypeVar, cast
 
 from _pytest.deprecated import KEYWORD_MSG_ARG
 
@@ -18,6 +13,7 @@ TYPE_CHECKING = False  # Avoid circular import through compat.
 
 if TYPE_CHECKING:
     from typing import NoReturn
+
     from typing_extensions import Protocol
 else:
     # typing.Protocol is only available starting from Python 3.8. It is also
@@ -224,12 +220,12 @@ def _resolve_msg_to_reason(
     """
     __tracebackhide__ = True
     if msg is not None:
-
         if reason:
             from pytest import UsageError
 
             raise UsageError(
-                f"Passing both ``reason`` and ``msg`` to pytest.{func_name}(...) is not permitted."
+                f"Passing both ``reason`` and ``msg`` to pytest.{func_name}(...) is not"
+                " permitted."
             )
         warnings.warn(KEYWORD_MSG_ARG.format(func=func_name), stacklevel=3)
         reason = msg

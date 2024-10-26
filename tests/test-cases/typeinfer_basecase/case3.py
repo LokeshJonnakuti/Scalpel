@@ -5,6 +5,7 @@
 # case3.py: my_str -> str
 # case3.py: my_function() -> Union[int, str]
 
+
 def my_function(my_bool):
     if my_bool:
         my_int = 200

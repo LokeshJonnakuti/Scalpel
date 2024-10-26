@@ -3,23 +3,22 @@ import numbers
 import operator
 import sys
 import unittest
-from typing import Callable, Dict, Union, List, Optional
+from typing import Callable, Dict, List, Optional, Union
 
 import torch
 import torch.fx.experimental.optimization as optimization
 from torch.fx._symbolic_trace import symbolic_trace
-from torch.fx.experimental import graph_manipulation
-from torch.fx.experimental import merge_matmul
+from torch.fx.experimental import graph_manipulation, merge_matmul
 from torch.fx.experimental.accelerator_partitioner import Partitioner
-from torch.fx.experimental.normalize import NormalizeOperators, NormalizeArgs
+from torch.fx.experimental.normalize import NormalizeArgs, NormalizeOperators
 from torch.fx.experimental.param_fetch import lift_lowering_attrs_to_nodes
 from torch.fx.experimental.partitioner_utils import (
-    NodeLatency,
-    get_partition_to_latency_mapping,
-    get_latency_of_partitioned_graph,
     Device,
+    NodeLatency,
     PartitionerConfig,
     PartitionMode,
+    get_latency_of_partitioned_graph,
+    get_partition_to_latency_mapping,
 )
 from torch.fx.experimental.rewriter import RewritingTracer
 from torch.fx.experimental.schema_type_annotation import AnnotateTypesWithSchema
@@ -27,17 +26,17 @@ from torch.fx.graph_module import GraphModule
 from torch.fx.node import Node
 from torch.fx.operator_schemas import (
     _torchscript_type_to_python_type,
+    create_type_hint,
     normalize_function,
     normalize_module,
     type_matches,
-    create_type_hint,
 )
-from torch.fx.passes.shape_prop import extract_tensor_metadata, ShapeProp
+from torch.fx.passes.shape_prop import ShapeProp, extract_tensor_metadata
 from torch.fx.passes.split_module import split_module
 from torch.testing._internal.common_device_type import (
-    ops,
-    onlyCPU,
     instantiate_device_type_tests,
+    onlyCPU,
+    ops,
 )
 from torch.testing._internal.common_methods_invocations import op_db
 from torch.testing._internal.common_nn import module_tests, new_module_tests
@@ -1220,6 +1219,7 @@ class {test_classname}(torch.nn.Module):
         A collection of test cases for torch.fx.experimental.merge_matmul,
         a graph transformation that merges matrix multiplication operations.
         """
+
         # Utility function for counting matmuls for test assertions.
         def _count_matmuls(mod):
             gm = torch.fx.symbolic_trace(mod)
@@ -1403,7 +1403,12 @@ class {test_classname}(torch.nn.Module):
             def forward(self, x):
                 return self.model(x) + self.model2(x)
 
-        N, C, H, W, = (
+        (
+            N,
+            C,
+            H,
+            W,
+        ) = (
             1,
             3,
             224,
@@ -1436,7 +1441,11 @@ class {test_classname}(torch.nn.Module):
         with torch.no_grad():
             for model_type in models:
                 model = model_type()
-                C, H, W, = (
+                (
+                    C,
+                    H,
+                    W,
+                ) = (
                     3,
                     224,
                     224,
@@ -1486,9 +1495,9 @@ class TestNormalizeOperators(JitTestCase):
             "__rdiv__",
             "__rmod__",
             "__rpow__",
-            '__rand__',
-            '__ror__',
-            '__rxor__',
+            "__rand__",
+            "__ror__",
+            "__rxor__",
             "__rmatmul__",
         }
 

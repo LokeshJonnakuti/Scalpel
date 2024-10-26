@@ -3,6 +3,8 @@ Data structure for 1-dimensional cross-sectional and time series data
 """
 from __future__ import annotations
 
+import warnings
+import weakref
 from io import StringIO
 from shutil import get_terminal_size
 from textwrap import dedent
@@ -19,19 +21,14 @@ from typing import (
     cast,
     overload,
 )
-import warnings
-import weakref
 
 import numpy as np
-
+import pandas.core.common as com
+import pandas.core.indexes.base as ibase
+import pandas.io.formats.format as fmt
+import pandas.plotting
 from pandas._config import get_option
-
-from pandas._libs import (
-    lib,
-    properties,
-    reshape,
-    tslibs,
-)
+from pandas._libs import lib, properties, reshape, tslibs
 from pandas._libs.lib import no_default
 from pandas._typing import (
     AggFuncType,
@@ -49,18 +46,19 @@ from pandas._typing import (
     npt,
 )
 from pandas.compat.numpy import function as nv
-from pandas.errors import InvalidIndexError
-from pandas.util._decorators import (
-    Appender,
-    Substitution,
-    deprecate_nonkeyword_arguments,
-    doc,
+from pandas.core import algorithms, base, generic, missing, nanops, ops
+from pandas.core.accessor import CachedAccessor
+from pandas.core.apply import SeriesApply
+from pandas.core.arrays import ExtensionArray
+from pandas.core.arrays.categorical import CategoricalAccessor
+from pandas.core.arrays.sparse import SparseAccessor
+from pandas.core.construction import (
+    create_series_with_explicit_dtype,
+    ensure_wrapped_if_datetimelike,
+    extract_array,
+    is_empty_data,
+    sanitize_array,
 )
-from pandas.util._validators import (
-    validate_bool_kwarg,
-    validate_percentile,
-)
-
 from pandas.core.dtypes.cast import (
     convert_dtypes,
     maybe_box_native,
@@ -87,33 +85,8 @@ from pandas.core.dtypes.missing import (
     notna,
     remove_na_arraylike,
 )
-
-from pandas.core import (
-    algorithms,
-    base,
-    generic,
-    missing,
-    nanops,
-    ops,
-)
-from pandas.core.accessor import CachedAccessor
-from pandas.core.apply import SeriesApply
-from pandas.core.arrays import ExtensionArray
-from pandas.core.arrays.categorical import CategoricalAccessor
-from pandas.core.arrays.sparse import SparseAccessor
-import pandas.core.common as com
-from pandas.core.construction import (
-    create_series_with_explicit_dtype,
-    ensure_wrapped_if_datetimelike,
-    extract_array,
-    is_empty_data,
-    sanitize_array,
-)
 from pandas.core.generic import NDFrame
-from pandas.core.indexers import (
-    deprecate_ndim_indexing,
-    unpack_1tuple,
-)
+from pandas.core.indexers import deprecate_ndim_indexing, unpack_1tuple
 from pandas.core.indexes.accessors import CombinedDatetimelikeProperties
 from pandas.core.indexes.api import (
     CategoricalIndex,
@@ -125,25 +98,22 @@ from pandas.core.indexes.api import (
     TimedeltaIndex,
     ensure_index,
 )
-import pandas.core.indexes.base as ibase
 from pandas.core.indexing import check_bool_indexer
-from pandas.core.internals import (
-    SingleArrayManager,
-    SingleBlockManager,
-)
+from pandas.core.internals import SingleArrayManager, SingleBlockManager
 from pandas.core.shared_docs import _shared_docs
-from pandas.core.sorting import (
-    ensure_key_mapped,
-    nargsort,
-)
+from pandas.core.sorting import ensure_key_mapped, nargsort
 from pandas.core.strings import StringMethods
 from pandas.core.tools.datetimes import to_datetime
-
-import pandas.io.formats.format as fmt
-import pandas.plotting
+from pandas.errors import InvalidIndexError
+from pandas.util._decorators import (
+    Appender,
+    Substitution,
+    deprecate_nonkeyword_arguments,
+    doc,
+)
+from pandas.util._validators import validate_bool_kwarg, validate_percentile
 
 if TYPE_CHECKING:
-
     from pandas.core.frame import DataFrame
     from pandas.core.groupby.generic import SeriesGroupBy
     from pandas.core.resample import Resampler
@@ -317,7 +287,6 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
         copy: bool = False,
         fastpath: bool = False,
     ):
-
         if (
             isinstance(data, (SingleBlockManager, SingleArrayManager))
             and index is None
@@ -331,7 +300,6 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
 
         # we are called internally, so short-circuit
         if fastpath:
-
             # data is an ndarray, index is defined
             if not isinstance(data, (SingleBlockManager, SingleArrayManager)):
                 manager = get_option("mode.data_manager")
@@ -345,15 +313,16 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
                 index = data.index
 
         else:
-
             name = ibase.maybe_extract_name(name, data, type(self))
 
             if is_empty_data(data) and dtype is None:
                 # gh-17261
                 warnings.warn(
-                    "The default dtype for empty Series will be 'object' instead "
-                    "of 'float64' in a future version. Specify a dtype explicitly "
-                    "to silence this warning.",
+                    (
+                        "The default dtype for empty Series will be 'object' instead "
+                        "of 'float64' in a future version. Specify a dtype explicitly "
+                        "to silence this warning."
+                    ),
                     DeprecationWarning,
                     stacklevel=2,
                 )
@@ -373,7 +342,6 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
                     "initializing a Series from a MultiIndex is not supported"
                 )
             elif isinstance(data, Index):
-
                 if dtype is not None:
                     # astype copies
                     data = data.astype(dtype)
@@ -877,8 +845,10 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
     def take(self, indices, axis=0, is_copy=None, **kwargs) -> Series:
         if is_copy is not None:
             warnings.warn(
-                "is_copy is deprecated and will be removed in a future version. "
-                "'take' always returns a copy, so there is no need to specify this.",
+                (
+                    "is_copy is deprecated and will be removed in a future version. "
+                    "'take' always returns a copy, so there is no need to specify this."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )
@@ -1067,11 +1037,13 @@ class Series(base.IndexOpsMixin, generic.NDFrame):
                 if not self.index._should_fallback_to_positional:
                     # GH#33469
                     warnings.warn(
-                        "Treating integers as positional in Series.__setitem__ "
-                        "with a Float64Index is deprecated. In a future version, "
-                        "`series[an_int] = val` will insert a new key into the "
-                        "Series. Use `series.iloc[an_int] = val` to treat the "
-                        "key as positional.",
+                        (
+                            "Treating integers as positional in Series.__setitem__ "
+                            "with a Float64Index is deprecated. In a future version, "
+                            "`series[an_int] = val` will insert a new key into the "
+                            "Series. Use `series.iloc[an_int] = val` to treat the "
+                            "key as positional."
+                        ),
                         FutureWarning,
                         stacklevel=2,
                     )
@@ -1921,9 +1893,12 @@ Name: Max Speed, dtype: float64
             return notna(self._values).sum().astype("int64")
         else:
             warnings.warn(
-                "Using the level keyword in DataFrame and Series aggregations is "
-                "deprecated and will be removed in a future version. Use groupby "
-                "instead. ser.count(level=1) should use ser.groupby(level=1).count().",
+                (
+                    "Using the level keyword in DataFrame and Series aggregations is"
+                    " deprecated and will be removed in a future version. Use groupby"
+                    " instead. ser.count(level=1) should use"
+                    " ser.groupby(level=1).count()."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )
@@ -5090,8 +5065,10 @@ Keep all original rows and also all original values
         """
         if inclusive is True or inclusive is False:
             warnings.warn(
-                "Boolean inputs to the `inclusive` argument are deprecated in"
-                "favour of `both` or `neither`.",
+                (
+                    "Boolean inputs to the `inclusive` argument are deprecated in"
+                    "favour of `both` or `neither`."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )

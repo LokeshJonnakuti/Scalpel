@@ -28,7 +28,7 @@ We will highly appreciate it if you can contribute to this project. Please feel 
 
 Detailed user guides can be found at [python-scalpel.readthedocs.io](http://python-scalpel.readthedocs.io/).
 
-We aim to provide Scalpel as a generic Python static analysis framework that includes as many functions as possible (e.g., to easily build inter-function control-flow graph, to interpret the import relationship of different Python modules, etc.) towards facilitating developers to implement their dedicated problem-focused static analyzers. The following figure depicts the current architecture of its design. 
+We aim to provide Scalpel as a generic Python static analysis framework that includes as many functions as possible (e.g., to easily build inter-function control-flow graph, to interpret the import relationship of different Python modules, etc.) towards facilitating developers to implement their dedicated problem-focused static analyzers. The following figure depicts the current architecture of its design.
 
 ![Scalpel Design](/docs/source/_static/resources//scalpel_design.png)
 

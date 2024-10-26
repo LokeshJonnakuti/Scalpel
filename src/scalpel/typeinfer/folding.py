@@ -1,17 +1,17 @@
 """Constant folding of expressions.
 This is an implementation of expression node evaluation. The function serves as an alternative to ast.literal_eval().
-For example, 4 + 5 can be constant folded into 9. 
+For example, 4 + 5 can be constant folded into 9.
 """
 
 from __future__ import annotations
-import operator
-import ast 
-import math 
+
+import ast
 import builtins
-
+import math
+import operator
 from typing import Union
-from typing_extensions import Final
 
+from typing_extensions import Final
 
 # All possible result types of constant folding
 ConstantValue = Union[int, bool, float, str]
@@ -23,73 +23,74 @@ BUILT_IN_FUNCTIONS = [x for x in dir(builtins) if not "__" in x]
 
 
 BinOps = {
-        ast.Add: operator.add,
-        ast.Sub: operator.sub,
-        ast.Mult: operator.mul,
-        ast.Div: operator.truediv,
-        ast.Mod: operator.mod,
-        ast.Pow: operator.pow,
-    }
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
 
 UnaryOps = {
-        ast.USub: operator.neg,
-        ast.UAdd: operator.pos,
-        ast.UnaryOp: ast.UnaryOp,
-        ast.Not: operator.__not__
-    }
+    ast.USub: operator.neg,
+    ast.UAdd: operator.pos,
+    ast.UnaryOp: ast.UnaryOp,
+    ast.Not: operator.__not__,
+}
 
 ops = tuple(BinOps) + tuple(UnaryOps)
 
 
 def ast_node_eval(node):
-   
     ##TODO
     pass
 
 
 def _eval(expr):
     if isinstance(expr, ast.Constant):
-        return expr.value 
+        return expr.value
     elif isinstance(expr, ast.Num):
-        return expr.n 
+        return expr.n
     elif isinstance(expr, ast.Str):
-        return expr.s 
+        return expr.s
     elif isinstance(expr, ast.Bytes):
-        return expr.s 
+        return expr.s
     elif isinstance(expr, ast.NameConstant):
-        return expr.value 
+        return expr.value
     elif isinstance(expr, ast.BinOp):
         op_func = BinOps[type(expr.op)]
         left_val = _eval(expr.left)
         right_val = _eval(expr.right)
         if left_val and right_val:
             return op_func(left_val, right_val)
-        return None 
+        return None
     elif isinstance(expr, ast.UnaryOp):
         op_func = UnaryOps[type(expr.op)]
         oprand_val = _eval(expr.operand)
         if oprand_val:
             return op_func(oprand_val)
-        return None 
+        return None
     elif isinstance(expr, ast.Call):
         if isinstance(expr.func, ast.Name):
-            #check for std functions
-            pass 
-        return None 
-    # get arg list 
-    # eval args 
-    
+            # check for std functions
+            pass
+        return None
+    # get arg list
+    # eval args
+
 
 def constant_folding(ast_expr):
- 
     return _eval(ast_expr)
+
+
 def src_to_node(src):
     tree = ast.parse(src, mode="eval")
     return tree.body
 
+
 def tests():
     assert constant_folding(src_to_node("1+1")) == 2
-    assert constant_folding(src_to_node("1+-5"))== -4
+    assert constant_folding(src_to_node("1+-5")) == -4
     assert constant_folding(src_to_node("-1")) == -1
     assert constant_folding(src_to_node("-+1")) == -1
     assert constant_folding(src_to_node("(100*10)+6")) == 1006
@@ -97,6 +98,7 @@ def tests():
     assert constant_folding(src_to_node("2**4")) == 2**4
     assert constant_folding(src_to_node("1.2345 * 10")) == 1.2345 * 10
     assert constant_folding(src_to_node('"a"*10')) == "aaaaaaaaaa"
-    assert constant_folding(src_to_node('a*10')) == None
+    assert constant_folding(src_to_node("a*10")) == None
 
-tests() 
+
+tests()

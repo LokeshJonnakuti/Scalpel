@@ -1,18 +1,17 @@
-'''
+"""
 From pytest_saferepr.py
-'''
-from typing import Any
-from typing import Dict
-from typing import IO
+"""
+from typing import IO, Any, Dict
+
 
 def _format(
-        self,
-        object: object,
-        stream: IO[str],
-        indent: int,
-        allowance: int,
-        context: Dict[int, Any],
-        level: int,
+    self,
+    object: object,
+    stream: IO[str],
+    indent: int,
+    allowance: int,
+    context: Dict[int, Any],
+    level: int,
 ) -> None:
     # Type ignored because _dispatch is private.
     p = self._dispatch.get(type(object).__repr__, None)  # type: ignore[attr-defined]

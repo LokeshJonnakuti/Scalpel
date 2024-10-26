@@ -1,11 +1,12 @@
-'''
+"""
 From pytest_nose.py
-'''
+"""
 from _pytest.config import hookimpl
 from _pytest.fixtures import getfixturemarker
 from _pytest.nodes import Item
 from _pytest.python import Function
 from _pytest.unittest import TestCaseFunction
+
 
 def call_optional(obj: object, name: str) -> bool:
     method = getattr(obj, name, None)

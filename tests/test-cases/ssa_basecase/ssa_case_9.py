@@ -1,4 +1,4 @@
-for path_repo in self._conf.get('path_to_repos'):
+for path_repo in self._conf.get("path_to_repos"):
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         jobs = {executor.submit(self.iter_commits, chunk): chunk for chunk in chunks}
 

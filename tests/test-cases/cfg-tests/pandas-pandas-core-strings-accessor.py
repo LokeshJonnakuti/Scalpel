@@ -1,21 +1,16 @@
 from __future__ import annotations
 
 import codecs
+import re
+import warnings
 from collections.abc import Callable  # noqa: PDF001
 from functools import wraps
-import re
-from typing import (
-    TYPE_CHECKING,
-    Hashable,
-)
-import warnings
+from typing import TYPE_CHECKING, Hashable
 
 import numpy as np
-
 import pandas._libs.lib as lib
 from pandas._typing import DtypeObj
-from pandas.util._decorators import Appender
-
+from pandas.core.base import NoNewAttributesMixin
 from pandas.core.dtypes.common import (
     ensure_object,
     is_bool_dtype,
@@ -25,22 +20,12 @@ from pandas.core.dtypes.common import (
     is_object_dtype,
     is_re,
 )
-from pandas.core.dtypes.generic import (
-    ABCDataFrame,
-    ABCIndex,
-    ABCMultiIndex,
-    ABCSeries,
-)
+from pandas.core.dtypes.generic import ABCDataFrame, ABCIndex, ABCMultiIndex, ABCSeries
 from pandas.core.dtypes.missing import isna
-
-from pandas.core.base import NoNewAttributesMixin
+from pandas.util._decorators import Appender
 
 if TYPE_CHECKING:
-    from pandas import (
-        DataFrame,
-        Index,
-        Series,
-    )
+    from pandas import DataFrame, Index, Series
 
 _shared_docs: dict[str, str] = {}
 _cpython_optimized_encoders = (
@@ -252,10 +237,7 @@ class StringMethods(NoNewAttributesMixin):
         returns_string=True,
         returns_bool: bool = False,
     ):
-        from pandas import (
-            Index,
-            MultiIndex,
-        )
+        from pandas import Index, MultiIndex
 
         if not hasattr(result, "ndim") or not hasattr(result, "dtype"):
             if isinstance(result, ABCDataFrame):
@@ -370,10 +352,7 @@ class StringMethods(NoNewAttributesMixin):
         list of Series
             Others transformed into list of Series.
         """
-        from pandas import (
-            DataFrame,
-            Series,
-        )
+        from pandas import DataFrame, Series
 
         # self._orig is either Series or Index
         idx = self._orig if isinstance(self._orig, ABCIndex) else self._orig.index
@@ -550,11 +529,7 @@ class StringMethods(NoNewAttributesMixin):
         For more examples, see :ref:`here <text.concatenate>`.
         """
         # TODO: dispatch
-        from pandas import (
-            Index,
-            Series,
-            concat,
-        )
+        from pandas import Index, Series, concat
 
         if isinstance(others, str):
             raise ValueError("Did you mean to supply a `sep` keyword?")
@@ -882,8 +857,9 @@ class StringMethods(NoNewAttributesMixin):
         _shared_docs["str_partition"]
         % {
             "side": "first",
-            "return": "3 elements containing the string itself, followed by two "
-            "empty strings",
+            "return": (
+                "3 elements containing the string itself, followed by two empty strings"
+            ),
             "also": "rpartition : Split the string at the last occurrence of `sep`.",
         }
     )
@@ -896,8 +872,9 @@ class StringMethods(NoNewAttributesMixin):
         _shared_docs["str_partition"]
         % {
             "side": "last",
-            "return": "3 elements containing two empty strings, followed by the "
-            "string itself",
+            "return": (
+                "3 elements containing two empty strings, followed by the string itself"
+            ),
             "also": "partition : Split the string at the first occurrence of `sep`.",
         }
     )
@@ -1153,8 +1130,10 @@ class StringMethods(NoNewAttributesMixin):
         """
         if regex and re.compile(pat).groups:
             warnings.warn(
-                "This pattern has match groups. To actually get the "
-                "groups, use str.extract.",
+                (
+                    "This pattern has match groups. To actually get the "
+                    "groups, use str.extract."
+                ),
                 UserWarning,
                 stacklevel=3,
             )
@@ -3141,7 +3120,6 @@ def str_extractall(arr, pat, flags=0):
 
     for subject_key, subject in arr.items():
         if isinstance(subject, str):
-
             if not is_mi:
                 subject_key = (subject_key,)
 

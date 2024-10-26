@@ -2,7 +2,6 @@
 Tests for CategoricalIndex.__repr__ and related methods.
 """
 import pandas._config.config as cf
-
 from pandas import CategoricalIndex
 
 
@@ -78,7 +77,6 @@ class TestCategoricalIndexRepr:
 
         # Enable Unicode option -----------------------------------------
         with cf.option_context("display.unicode.east_asian_width", True):
-
             # short
             idx = CategoricalIndex(["あ", "いい", "ううう"])
             expected = """CategoricalIndex(['あ', 'いい', 'ううう'], categories=['あ', 'いい', 'ううう'], ordered=False, dtype='category')"""  # noqa

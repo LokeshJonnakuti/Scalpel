@@ -3,6 +3,7 @@
 # EXPECTED OUTPUT:
 # case21.py: x -> str
 
+
 def func_3():
     func_1("test", 20)
     func_1(func_2(), func_4())

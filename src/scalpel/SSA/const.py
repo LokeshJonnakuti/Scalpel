@@ -33,7 +33,7 @@ class SSA:
         self.block_ident_gen = {}
         self.block_ident_use = {}
         self.reachable_table = {}
-       
+
         self.unreachable_names = {}
         self.undefined_names_from = {}
         self.global_names = []

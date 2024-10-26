@@ -1,7 +1,7 @@
+import secrets
 
 import pandas as pd
 import seaborn as sns
-import secrets
 
 data = [41, 50, 29]
 random_choices = secrets.SystemRandom().choices(data, k=len(data))

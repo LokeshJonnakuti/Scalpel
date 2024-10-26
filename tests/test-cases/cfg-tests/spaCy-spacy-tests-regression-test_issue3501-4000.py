@@ -1,24 +1,23 @@
+import numpy
 import pytest
-from spacy.language import Language
-from spacy.vocab import Vocab
-from spacy.pipeline import EntityRuler, DependencyParser
-from spacy.pipeline.dep_parser import DEFAULT_PARSER_MODEL
-from spacy import displacy, load
-from spacy.displacy import parse_deps
-from spacy.tokens import Doc, Token
-from spacy.matcher import Matcher, PhraseMatcher
-from spacy.errors import MatchPatternError
-from spacy.util import minibatch
-from spacy.training import Example
-from spacy.lang.hi import Hindi
-from spacy.lang.es import Spanish
-from spacy.lang.en import English
-from spacy.attrs import IS_ALPHA
-from spacy import registry
-from thinc.api import compounding
 import spacy
 import srsly
-import numpy
+from spacy import displacy, load, registry
+from spacy.attrs import IS_ALPHA
+from spacy.displacy import parse_deps
+from spacy.errors import MatchPatternError
+from spacy.lang.en import English
+from spacy.lang.es import Spanish
+from spacy.lang.hi import Hindi
+from spacy.language import Language
+from spacy.matcher import Matcher, PhraseMatcher
+from spacy.pipeline import DependencyParser, EntityRuler
+from spacy.pipeline.dep_parser import DEFAULT_PARSER_MODEL
+from spacy.tokens import Doc, Token
+from spacy.training import Example
+from spacy.util import minibatch
+from spacy.vocab import Vocab
+from thinc.api import compounding
 
 from ..util import make_tempdir
 
@@ -300,10 +299,23 @@ def test_issue3839(en_vocab):
 @pytest.mark.parametrize(
     "sentence",
     [
-        "The story was to the effect that a young American student recently called on Professor Christlieb with a letter of introduction.",
-        "The next month Barry Siddall joined Stoke City on a free transfer, after Chris Pearce had established himself as the Vale's #1.",
-        "The next month Barry Siddall joined Stoke City on a free transfer, after Chris Pearce had established himself as the Vale's number one",
-        "Indeed, making the one who remains do all the work has installed him into a position of such insolent tyranny, it will take a month at least to reduce him to his proper proportions.",
+        (
+            "The story was to the effect that a young American student recently called"
+            " on Professor Christlieb with a letter of introduction."
+        ),
+        (
+            "The next month Barry Siddall joined Stoke City on a free transfer, after"
+            " Chris Pearce had established himself as the Vale's #1."
+        ),
+        (
+            "The next month Barry Siddall joined Stoke City on a free transfer, after"
+            " Chris Pearce had established himself as the Vale's number one"
+        ),
+        (
+            "Indeed, making the one who remains do all the work has installed him into"
+            " a position of such insolent tyranny, it will take a month at least to"
+            " reduce him to his proper proportions."
+        ),
         "It was a missed assignment, but it shouldn't have resulted in a turnover ...",
     ],
 )
@@ -369,7 +381,8 @@ def test_issue3959():
     """Ensure that a modified pos attribute is serialized correctly."""
     nlp = English()
     doc = nlp(
-        "displaCy uses JavaScript, SVG and CSS to show you how computers understand language"
+        "displaCy uses JavaScript, SVG and CSS to show you how computers understand"
+        " language"
     )
     assert doc[0].pos_ == ""
     doc[0].pos_ = "NOUN"
@@ -385,7 +398,8 @@ def test_issue3959():
 
 def test_issue3962(en_vocab):
     """Ensure that as_doc does not result in out-of-bound access of tokens.
-    This is achieved by setting the head to itself if it would lie out of the span otherwise."""
+    This is achieved by setting the head to itself if it would lie out of the span otherwise.
+    """
     # fmt: off
     words = ["He", "jests", "at", "scars", ",", "that", "never", "felt", "a", "wound", "."]
     heads = [1, 7, 1, 2, 7, 7, 7, 7, 9, 7, 7]
@@ -423,7 +437,8 @@ def test_issue3962(en_vocab):
 
 def test_issue3962_long(en_vocab):
     """Ensure that as_doc does not result in out-of-bound access of tokens.
-    This is achieved by setting the head to itself if it would lie out of the span otherwise."""
+    This is achieved by setting the head to itself if it would lie out of the span otherwise.
+    """
     # fmt: off
     words = ["He", "jests", "at", "scars", ".", "They", "never", "felt", "a", "wound", "."]
     heads = [1, 1, 1, 2, 1, 7, 7, 7, 9, 7, 7]

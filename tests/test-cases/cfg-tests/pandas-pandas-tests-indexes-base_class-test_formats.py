@@ -1,8 +1,6 @@
 import numpy as np
-import pytest
-
 import pandas._config.config as cf
-
+import pytest
 from pandas import Index
 
 
@@ -19,20 +17,23 @@ class TestIndexRendering:
             # multiple lines
             (
                 Index(["a", "bb", "ccc"] * 10),
-                "Index(['a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', "
-                "'bb', 'ccc', 'a', 'bb', 'ccc',\n"
-                "       'a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', "
-                "'bb', 'ccc', 'a', 'bb', 'ccc',\n"
-                "       'a', 'bb', 'ccc', 'a', 'bb', 'ccc'],\n"
-                "      dtype='object')",
+                (
+                    "Index(['a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', "
+                    "'bb', 'ccc', 'a', 'bb', 'ccc',\n"
+                    "       'a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', "
+                    "'bb', 'ccc', 'a', 'bb', 'ccc',\n"
+                    "       'a', 'bb', 'ccc', 'a', 'bb', 'ccc'],\n"
+                    "      dtype='object')"
+                ),
             ),
             # truncated
             (
                 Index(["a", "bb", "ccc"] * 100),
-                "Index(['a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a',\n"
-                "       ...\n"
-                "       'ccc', 'a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', 'bb', 'ccc'],\n"
-                "      dtype='object', length=300)",
+                (
+                    "Index(['a', 'bb', 'ccc', 'a', 'bb', 'ccc', 'a', 'bb', 'ccc',"
+                    " 'a',\n       ...\n       'ccc', 'a', 'bb', 'ccc', 'a', 'bb',"
+                    " 'ccc', 'a', 'bb', 'ccc'],\n      dtype='object', length=300)"
+                ),
             ),
             # Non-ASCII
             # short
@@ -77,7 +78,7 @@ class TestIndexRendering:
             # short
             (
                 Index(["あ", "いい", "ううう"]),
-                ("Index(['あ', 'いい', 'ううう'], dtype='object')"),
+                "Index(['あ', 'いい', 'ううう'], dtype='object')",
             ),
             # multiple lines
             (

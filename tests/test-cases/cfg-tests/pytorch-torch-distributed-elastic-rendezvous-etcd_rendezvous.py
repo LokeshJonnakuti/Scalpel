@@ -23,9 +23,8 @@ from torch.distributed.elastic.rendezvous import (
     RendezvousTimeoutError,
 )
 
-from .utils import parse_rendezvous_endpoint
 from .etcd_store import EtcdStore, cas_delay
-
+from .utils import parse_rendezvous_endpoint
 
 _log_fmt = logging.Formatter("%(levelname)s %(asctime)s %(message)s")
 _log_handler = logging.StreamHandler(sys.stderr)
@@ -1068,6 +1067,8 @@ def create_rdzv_handler(params: RendezvousParameters) -> RendezvousHandler:
         num_min_workers=params.min_nodes,
         num_max_workers=params.max_nodes,
         timeout=params.get_as_int("timeout", _DEFAULT_TIMEOUT),
-        last_call_timeout=params.get_as_int("last_call_timeout", _DEFAULT_LAST_CALL_TIMEOUT),
+        last_call_timeout=params.get_as_int(
+            "last_call_timeout", _DEFAULT_LAST_CALL_TIMEOUT
+        ),
     )
     return EtcdRendezvousHandler(rdzv_impl=rdzv)

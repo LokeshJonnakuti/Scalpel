@@ -9,33 +9,34 @@ Usage:
 """
 # future division is important to divide integers and get as
 # a result precise floating numbers (instead of truncated int)
-from __future__ import division, absolute_import
+from __future__ import absolute_import, division
+
 # import compatibility functions and utilities
 import sys
-from ._utils import _range
+
 # to inherit from the tqdm class
 from ._tqdm import tqdm
-
+from ._utils import _range
 
 if True:  # pragma: no cover
     # import IPython/Jupyter base widget and display utilities
     try:  # IPython 4.x
         import ipywidgets
+
         IPY = 4
     except ImportError:  # IPython 3.x / 2.x
         IPY = 32
         import warnings
+
         with warnings.catch_warnings():
-            ipy_deprecation_msg = "The `IPython.html` package" \
-                                  " has been deprecated"
-            warnings.filterwarnings('error',
-                                    message=".*" + ipy_deprecation_msg + ".*")
+            ipy_deprecation_msg = "The `IPython.html` package has been deprecated"
+            warnings.filterwarnings("error", message=".*" + ipy_deprecation_msg + ".*")
             try:
                 import IPython.html.widgets as ipywidgets
             except Warning as e:
                 if ipy_deprecation_msg not in str(e):
                     raise
-                warnings.simplefilter('ignore')
+                warnings.simplefilter("ignore")
                 try:
                     import IPython.html.widgets as ipywidgets  # NOQA
                 except ImportError:
@@ -45,15 +46,17 @@ if True:  # pragma: no cover
 
     try:  # IPython 4.x / 3.x
         if IPY == 32:
-            from IPython.html.widgets import IntProgress, HBox, HTML
+            from IPython.html.widgets import HTML, HBox, IntProgress
+
             IPY = 3
         else:
-            from ipywidgets import IntProgress, HBox, HTML
+            from ipywidgets import HTML, HBox, IntProgress
     except ImportError:
         try:  # IPython 2.x
-            from IPython.html.widgets import IntProgressWidget as IntProgress
-            from IPython.html.widgets import ContainerWidget as HBox
             from IPython.html.widgets import HTML
+            from IPython.html.widgets import ContainerWidget as HBox
+            from IPython.html.widgets import IntProgressWidget as IntProgress
+
             IPY = 2
         except ImportError:
             IPY = 0
@@ -71,7 +74,8 @@ if True:  # pragma: no cover
 
 
 __author__ = {"github.com/": ["lrq3000", "casperdcl", "alexanderkuk"]}
-__all__ = ['tqdm_notebook', 'tnrange']
+__all__ = ["tqdm_notebook", "tnrange"]
+
 
 def tnrange(*args, **kwargs):
     """

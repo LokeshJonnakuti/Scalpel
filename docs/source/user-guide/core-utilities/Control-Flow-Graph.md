@@ -48,7 +48,7 @@ for block in cfg:
 
 ## Visualizations of CFG objects
 
-Scalpel offerers some functionalities to render the CFG diagrams into PDF, PNG, JPG or SVGs. Please notice this requires the graphviz package installed on your computer. Please refer to [graphviz](https://graphviz.readthedocs.io/en/stable/manual.html) to get it installed. 
+Scalpel offerers some functionalities to render the CFG diagrams into PDF, PNG, JPG or SVGs. Please notice this requires the graphviz package installed on your computer. Please refer to [graphviz](https://graphviz.readthedocs.io/en/stable/manual.html) to get it installed.
 
 Developers can use ```cfg.build_visual()``` to build an ```graphviz.dot.Digraph``` object, then call ```render``` function to generate the image file as shown in the following code snippet.
 
@@ -61,9 +61,9 @@ dot.render("cfg_diagram", view=False)
 
 In theory, there are no control flow constraints between subprocedures such as functions. Therefore, Scalpel generates control flow graphs for every function in the given source files. Considering the nested structure of Python class and function definition, we integrate recursive data structure for storing control flow graphs.
 
-Take the above source code for example, scalpel will generate two CFGs, one is shown in fig. 1 , and the other is for the function ```fib```. 
+Take the above source code for example, scalpel will generate two CFGs, one is shown in fig. 1 , and the other is for the function ```fib```.
 
-we can use the following way to visit all the function cfgs in the given source. 
+we can use the following way to visit all the function cfgs in the given source.
 
 Please note that function cfgs can be indexed by both the function name and its block id. This is due to Python language allows users to define functions with the same names in the same domain such as:
 
@@ -78,7 +78,7 @@ else:
 solve(x)
 ```
 
-The implementation of the function ```solve``` can be different depending the actual condition. Therefore, we need more than function name to index a function CFG. Now, if we take the fig. 1 for example, we can visit all function CFGs in the following way and try to create a pdf file for the diagram of CFG of function ```fib```: 
+The implementation of the function ```solve``` can be different depending the actual condition. Therefore, we need more than function name to index a function CFG. Now, if we take the fig. 1 for example, we can visit all function CFGs in the following way and try to create a pdf file for the diagram of CFG of function ```fib```:
 
 
 ```python
@@ -86,14 +86,14 @@ for (block_id, fun_name), fun_cfg in cfg.functioncfgs.items():
     ... # do something
     if fun_name == "fib":
         graph = fun_cfg.build_visual('png')
-        graph.render("fig_cfg", view=False) 
+        graph.render("fig_cfg", view=False)
 ```
 
 | ![Fib CFG](../../_static/resources/function_fib_cfg.png) |
 |:--:|
 | Fig.2 The control flow graph for the function ```fib``` |
 
-Please note, as there might be functions defined inside a function definition, you can continue to perform a similar operation on the ```fun_cfg``` to retrieve the nested function CFGs. These CFGs can be combined for analysis. 
+Please note, as there might be functions defined inside a function definition, you can continue to perform a similar operation on the ```fun_cfg``` to retrieve the nested function CFGs. These CFGs can be combined for analysis.
 
 
 \

@@ -5,45 +5,40 @@ import os
 import warnings
 from inspect import signature
 from pathlib import Path
-from typing import Any
-from typing import Callable
-from typing import cast
-from typing import Iterable
-from typing import Iterator
-from typing import List
-from typing import MutableMapping
-from typing import Optional
-from typing import overload
-from typing import Set
-from typing import Tuple
-from typing import Type
-from typing import TYPE_CHECKING
-from typing import TypeVar
-from typing import Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    List,
+    MutableMapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 import _pytest._code
 from _pytest._code import getfslineno
-from _pytest._code.code import ExceptionInfo
-from _pytest._code.code import TerminalRepr
-from _pytest.compat import cached_property
-from _pytest.compat import LEGACY_PATH
-from _pytest.config import Config
-from _pytest.config import ConftestImportFailure
-from _pytest.deprecated import FSCOLLECTOR_GETHOOKPROXY_ISINITPATH
-from _pytest.deprecated import NODE_CTOR_FSPATH_ARG
-from _pytest.mark.structures import Mark
-from _pytest.mark.structures import MarkDecorator
-from _pytest.mark.structures import NodeKeywords
+from _pytest._code.code import ExceptionInfo, TerminalRepr
+from _pytest.compat import LEGACY_PATH, cached_property
+from _pytest.config import Config, ConftestImportFailure
+from _pytest.deprecated import FSCOLLECTOR_GETHOOKPROXY_ISINITPATH, NODE_CTOR_FSPATH_ARG
+from _pytest.mark.structures import Mark, MarkDecorator, NodeKeywords
 from _pytest.outcomes import fail
-from _pytest.pathlib import absolutepath
-from _pytest.pathlib import commonpath
+from _pytest.pathlib import absolutepath, commonpath
 from _pytest.stash import Stash
 from _pytest.warning_types import PytestWarning
 
 if TYPE_CHECKING:
     # Imported here due to circular import.
-    from _pytest.main import Session
     from _pytest._code.code import _TracebackStyle
+    from _pytest.main import Session
 
 
 SEP = "/"
@@ -131,9 +126,9 @@ _NodeType = TypeVar("_NodeType", bound="Node")
 class NodeMeta(type):
     def __call__(self, *k, **kw):
         msg = (
-            "Direct construction of {name} has been deprecated, please use {name}.from_parent.\n"
-            "See "
-            "https://docs.pytest.org/en/stable/deprecations.html#node-construction-changed-to-node-from-parent"
+            "Direct construction of {name} has been deprecated, please use"
+            " {name}.from_parent.\nSee"
+            " https://docs.pytest.org/en/stable/deprecations.html#node-construction-changed-to-node-from-parent"
             " for more details."
         ).format(name=f"{self.__module__}.{self.__name__}")
         fail(msg, pytrace=False)
@@ -148,7 +143,8 @@ class NodeMeta(type):
 
             warnings.warn(
                 PytestDeprecationWarning(
-                    f"{self} is not using a cooperative constructor and only takes {set(known_kw)}"
+                    f"{self} is not using a cooperative constructor and only takes"
+                    f" {set(known_kw)}"
                 )
             )
 
@@ -662,11 +658,15 @@ class Item(Node):
         )
         if problems:
             warnings.warn(
-                f"{cls.__name__} is an Item subclass and should not be a collector, "
-                f"however its bases {problems} are collectors.\n"
-                "Please split the Collectors and the Item into separate node types.\n"
-                "Pytest Doc example: https://docs.pytest.org/en/latest/example/nonpython.html\n"
-                "example pull request on a plugin: https://github.com/asmeurer/pytest-flakes/pull/40/",
+                (
+                    f"{cls.__name__} is an Item subclass and should not be a collector,"
+                    f" however its bases {problems} are collectors.\nPlease split the"
+                    " Collectors and the Item into separate node types.\nPytest Doc"
+                    " example:"
+                    " https://docs.pytest.org/en/latest/example/nonpython.html\nexample"
+                    " pull request on a plugin:"
+                    " https://github.com/asmeurer/pytest-flakes/pull/40/"
+                ),
                 PytestWarning,
             )
 

@@ -3,7 +3,8 @@
 # EXPECTED OUTPUT:
 # Empty list -> []
 
+
 def my_function():
-    print('This function does nothing.')
+    print("This function does nothing.")
     for _ in range(10):
-        print('This is printing!')
+        print("This is printing!")

@@ -1,11 +1,12 @@
-'''
+"""
 From pytest_nose.py
-'''
+"""
 from _pytest.config import hookimpl
 from _pytest.fixtures import getfixturemarker
 from _pytest.nodes import Item
 from _pytest.python import Function
 from _pytest.unittest import TestCaseFunction
+
 
 def pytest_runtest_setup(item: Item) -> None:
     if not isinstance(item, Function):
@@ -25,5 +26,3 @@ def pytest_runtest_setup(item: Item) -> None:
     # with `pluginmanager.has_plugin("nose")` checks.
     # It would have been nicer to implement them outside of core, but
     # it's not straightforward.
-
-

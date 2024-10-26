@@ -2,12 +2,10 @@ from datetime import datetime
 from io import StringIO
 
 import numpy as np
-import pytest
-
 import pandas as pd
-from pandas import Series
 import pandas._testing as tm
-
+import pytest
+from pandas import Series
 from pandas.io.common import get_handle
 
 
@@ -66,7 +64,6 @@ class TestSeriesToCSV:
             tm.assert_series_equal(check_series, series)
 
     def test_to_csv(self, datetime_series):
-
         with tm.ensure_clean() as path:
             datetime_series.to_csv(path, header=False)
 
@@ -89,7 +86,6 @@ class TestSeriesToCSV:
         tm.assert_series_equal(s, s2)
 
     def test_to_csv_float_format(self):
-
         with tm.ensure_clean() as filename:
             ser = Series([0.123456, 0.234567, 0.567567])
             ser.to_csv(filename, float_format="%.2f", header=False)
@@ -128,9 +124,7 @@ class TestSeriesToCSV:
         ],
     )
     def test_to_csv_compression(self, s, encoding, compression):
-
         with tm.ensure_clean() as filename:
-
             s.to_csv(filename, compression=compression, encoding=encoding, header=True)
             # test the round trip - to_csv -> read_csv
             result = pd.read_csv(

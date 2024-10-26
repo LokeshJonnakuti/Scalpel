@@ -6,7 +6,7 @@ for code desugaring (removing code sugar usages), testing and code instrumentati
 
 
 ## How to use Rewriter
-Right now, Scalpel offers code rewriting at the statement level. Users can implement their own rewrite rules and pass them to the Rewriter API. We will use the following example to show the usages. 
+Right now, Scalpel offers code rewriting at the statement level. Users can implement their own rewrite rules and pass them to the Rewriter API. We will use the following example to show the usages.
 
 The demo input Python program we will be using is as follows.
 ```python
@@ -37,7 +37,7 @@ def rewrite_rules(node)->list:
           if node.value.func.id == "dict":
               new_assign_value = ast.Dict(keys=[], values=[])
               new_stmt = ast.Assign(node.targets, new_assign_value)
-              return [new_stmt]   
+              return [new_stmt]
 ```
 Please note that the in the rule function, you will need to create new statements for each of your rule (see how the `new_stmt` variable is formed). Finally, we can pass the rule function to the rewrite engine:
 

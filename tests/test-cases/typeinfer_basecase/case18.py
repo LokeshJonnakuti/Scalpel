@@ -7,6 +7,5 @@ class MyParentClass:
 
 
 class ChildClass(MyParentClass):
-
     def my_function(self):
         return super().parent_attribute

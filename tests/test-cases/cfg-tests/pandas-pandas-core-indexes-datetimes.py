@@ -1,46 +1,19 @@
 from __future__ import annotations
 
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta,
-    tzinfo,
-)
 import operator
-from typing import (
-    TYPE_CHECKING,
-    Hashable,
-)
 import warnings
+from datetime import date, datetime, time, timedelta, tzinfo
+from typing import TYPE_CHECKING, Hashable
 
 import numpy as np
-
-from pandas._libs import (
-    NaT,
-    Period,
-    Timestamp,
-    index as libindex,
-    lib,
-)
-from pandas._libs.tslibs import (
-    Resolution,
-    parsing,
-    timezones,
-    to_offset,
-)
+import pandas.core.common as com
+from pandas._libs import NaT, Period, Timestamp
+from pandas._libs import index as libindex
+from pandas._libs import lib
+from pandas._libs.tslibs import Resolution, parsing, timezones, to_offset
 from pandas._libs.tslibs.offsets import prefix_mapping
-from pandas._typing import (
-    Dtype,
-    DtypeObj,
-    npt,
-)
-from pandas.util._decorators import (
-    cache_readonly,
-    doc,
-)
-from pandas.util._exceptions import find_stack_level
-
+from pandas._typing import Dtype, DtypeObj, npt
+from pandas.core.arrays.datetimes import DatetimeArray, tz_to_dtype
 from pandas.core.dtypes.common import (
     DT64NS_DTYPE,
     is_datetime64_dtype,
@@ -48,28 +21,15 @@ from pandas.core.dtypes.common import (
     is_scalar,
 )
 from pandas.core.dtypes.missing import is_valid_na_for_dtype
-
-from pandas.core.arrays.datetimes import (
-    DatetimeArray,
-    tz_to_dtype,
-)
-import pandas.core.common as com
-from pandas.core.indexes.base import (
-    Index,
-    get_unanimous_names,
-    maybe_extract_name,
-)
+from pandas.core.indexes.base import Index, get_unanimous_names, maybe_extract_name
 from pandas.core.indexes.datetimelike import DatetimeTimedeltaMixin
 from pandas.core.indexes.extension import inherit_names
 from pandas.core.tools.times import to_time
+from pandas.util._decorators import cache_readonly, doc
+from pandas.util._exceptions import find_stack_level
 
 if TYPE_CHECKING:
-    from pandas import (
-        DataFrame,
-        Float64Index,
-        PeriodIndex,
-        TimedeltaIndex,
-    )
+    from pandas import DataFrame, Float64Index, PeriodIndex, TimedeltaIndex
 
 
 def _new_DatetimeIndex(cls, d):
@@ -315,7 +275,6 @@ class DatetimeIndex(DatetimeTimedeltaMixin):
         copy: bool = False,
         name: Hashable = None,
     ) -> DatetimeIndex:
-
         if is_scalar(data):
             raise cls._scalar_data_error(data)
 
@@ -356,7 +315,6 @@ class DatetimeIndex(DatetimeTimedeltaMixin):
         return self.tz is None and is_dates_only(self._values)  # type: ignore[arg-type]
 
     def __reduce__(self):
-
         # we use a special reduce here because we need
         # to simply set the .tz (and not reinterpret it)
 
@@ -495,19 +453,23 @@ class DatetimeIndex(DatetimeTimedeltaMixin):
         if keep_tz is not lib.no_default:
             if keep_tz:
                 warnings.warn(
-                    "The 'keep_tz' keyword in DatetimeIndex.to_series "
-                    "is deprecated and will be removed in a future version.  "
-                    "You can stop passing 'keep_tz' to silence this warning.",
+                    (
+                        "The 'keep_tz' keyword in DatetimeIndex.to_series "
+                        "is deprecated and will be removed in a future version.  "
+                        "You can stop passing 'keep_tz' to silence this warning."
+                    ),
                     FutureWarning,
                     stacklevel=2,
                 )
             else:
                 warnings.warn(
-                    "Specifying 'keep_tz=False' is deprecated and this "
-                    "option will be removed in a future release. If "
-                    "you want to remove the timezone information, you "
-                    "can do 'idx.tz_convert(None)' before calling "
-                    "'to_series'.",
+                    (
+                        "Specifying 'keep_tz=False' is deprecated and this "
+                        "option will be removed in a future release. If "
+                        "you want to remove the timezone information, you "
+                        "can do 'idx.tz_convert(None)' before calling "
+                        "'to_series'."
+                    ),
                     FutureWarning,
                     stacklevel=2,
                 )
@@ -636,7 +598,6 @@ class DatetimeIndex(DatetimeTimedeltaMixin):
             key = self._maybe_cast_for_get_loc(key)
 
         elif isinstance(key, str):
-
             try:
                 parsed, reso = self._parse_with_reso(key)
             except ValueError as err:
@@ -788,9 +749,11 @@ class DatetimeIndex(DatetimeTimedeltaMixin):
 
         if not deprecation_mask.any():
             warnings.warn(
-                "Value based partial slicing on non-monotonic DatetimeIndexes "
-                "with non-existing keys is deprecated and will raise a "
-                "KeyError in a future Version.",
+                (
+                    "Value based partial slicing on non-monotonic DatetimeIndexes "
+                    "with non-existing keys is deprecated and will raise a "
+                    "KeyError in a future Version."
+                ),
                 FutureWarning,
                 stacklevel=5,
             )

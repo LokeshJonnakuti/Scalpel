@@ -1,18 +1,18 @@
-import pytest
-import gc
-import numpy
 import copy
+import gc
 
-from spacy.training import Example
+import numpy
+import pytest
+from spacy.attrs import DEP, HEAD
 from spacy.lang.en import English
 from spacy.lang.en.stop_words import STOP_WORDS
 from spacy.lang.lex_attrs import is_stop
+from spacy.language import Language
+from spacy.matcher import Matcher
+from spacy.tokens import Doc, Span, Token
+from spacy.training import Example
 from spacy.vectors import Vectors
 from spacy.vocab import Vocab
-from spacy.language import Language
-from spacy.tokens import Doc, Span, Token
-from spacy.attrs import HEAD, DEP
-from spacy.matcher import Matcher
 
 from ..util import make_tempdir
 

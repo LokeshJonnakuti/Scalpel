@@ -1,19 +1,10 @@
 from textwrap import dedent
 
 import numpy as np
-import pytest
-
-from pandas import (
-    DataFrame,
-    get_option,
-    read_clipboard,
-)
 import pandas._testing as tm
-
-from pandas.io.clipboard import (
-    clipboard_get,
-    clipboard_set,
-)
+import pytest
+from pandas import DataFrame, get_option, read_clipboard
+from pandas.io.clipboard import clipboard_get, clipboard_set
 
 
 def build_kwargs(sep, excel):

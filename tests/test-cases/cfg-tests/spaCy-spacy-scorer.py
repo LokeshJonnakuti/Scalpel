@@ -1,12 +1,13 @@
-from typing import Optional, Iterable, Dict, Set, Any, Callable, TYPE_CHECKING
-import numpy as np
 from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Set
 
-from .training import Example
-from .tokens import Token, Doc, Span
+import numpy as np
+
 from .errors import Errors
-from .util import get_lang_class, SimpleFrozenList
 from .morphology import Morphology
+from .tokens import Doc, Span, Token
+from .training import Example
+from .util import SimpleFrozenList, get_lang_class
 
 if TYPE_CHECKING:
     # This lets us add type hints for mypy etc. without causing circular imports

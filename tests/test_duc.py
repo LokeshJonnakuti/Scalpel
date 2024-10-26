@@ -1,12 +1,9 @@
 import ast
 import textwrap
 from typing import List, Optional, Tuple
+
 from scalpel.cfg import CFGBuilder
-from scalpel.duc import (
-    Definition,
-    DUC,
-    Reference,
-)
+from scalpel.duc import DUC, Definition, Reference
 
 
 def make_duc(name: str, src: str) -> DUC:

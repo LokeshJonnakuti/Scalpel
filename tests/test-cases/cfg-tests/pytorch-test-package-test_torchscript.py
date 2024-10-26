@@ -3,11 +3,7 @@ from unittest import skipIf
 
 import torch
 from torch.package import PackageExporter, PackageImporter
-from torch.testing._internal.common_utils import (
-    run_tests,
-    IS_FBCODE,
-    IS_SANDCASTLE,
-)
+from torch.testing._internal.common_utils import IS_FBCODE, IS_SANDCASTLE, run_tests
 
 try:
     from torchvision.models import resnet18
@@ -75,7 +71,7 @@ class PackageScriptModuleTest(PackageTestCase):
         """
         Test basic saving of ScriptModule with submodule.
         """
-        from package_a.test_module import ModWithTensor, ModWithSubmod
+        from package_a.test_module import ModWithSubmod, ModWithTensor
 
         scripted_mod = torch.jit.script(
             ModWithSubmod(ModWithTensor(torch.rand(1, 2, 3)))
@@ -147,7 +143,7 @@ class PackageScriptModuleTest(PackageTestCase):
         Test to verify saving multiple ScriptModules with completely
         separate code works.
         """
-        from package_a.test_module import SimpleTest, ModWithTensor
+        from package_a.test_module import ModWithTensor, SimpleTest
 
         scripted_mod_0 = torch.jit.script(SimpleTest())
         scripted_mod_1 = torch.jit.script(ModWithTensor(torch.rand(1, 2, 3)))
@@ -173,9 +169,9 @@ class PackageScriptModuleTest(PackageTestCase):
         PyTorchStreamWriter writing ScriptModule code files multiple times.
         """
         from package_a.test_module import (
-            SimpleTest,
-            ModWithTensor,
             ModWithSubmodAndTensor,
+            ModWithTensor,
+            SimpleTest,
         )
 
         scripted_mod_0 = torch.jit.script(SimpleTest())
@@ -209,7 +205,7 @@ class PackageScriptModuleTest(PackageTestCase):
         Test to verify saving and loading same ScriptModule object works
         across multiple packages.
         """
-        from package_a.test_module import ModWithTensor, ModWithSubmodAndTensor
+        from package_a.test_module import ModWithSubmodAndTensor, ModWithTensor
 
         scripted_mod_0 = torch.jit.script(ModWithTensor(torch.rand(1, 2, 3)))
         scripted_mod_1 = torch.jit.script(
@@ -284,7 +280,7 @@ class PackageScriptModuleTest(PackageTestCase):
         Test saving of ScriptModules inside of container. Checks that relations
         between shared modules are upheld.
         """
-        from package_a.test_module import ModWithTensor, ModWithSubmodAndTensor
+        from package_a.test_module import ModWithSubmodAndTensor, ModWithTensor
 
         scripted_mod_a = torch.jit.script(ModWithTensor(torch.rand(1, 2, 3)))
         scripted_mod_b = torch.jit.script(
@@ -309,7 +305,7 @@ class PackageScriptModuleTest(PackageTestCase):
         eager modules (ScriptModule should be saved just once
         even though is contained in multiple pickles).
         """
-        from package_a.test_module import SimpleTest, ModWithSubmod
+        from package_a.test_module import ModWithSubmod, SimpleTest
 
         scripted_mod = torch.jit.script(SimpleTest())
 
@@ -334,9 +330,9 @@ class PackageScriptModuleTest(PackageTestCase):
         modules in single pickle (ScriptModule objects should be the same).
         """
         from package_a.test_module import (
-            SimpleTest,
             ModWithMultipleSubmods,
             ModWithSubmod,
+            SimpleTest,
         )
 
         scripted_mod = torch.jit.script(SimpleTest())

@@ -1,8 +1,8 @@
 import pytest
 from spacy import displacy
 from spacy.displacy.render import DependencyRenderer, EntityRenderer
-from spacy.tokens import Span, Doc
 from spacy.lang.fa import Persian
+from spacy.tokens import Doc, Span
 
 
 def test_displacy_parse_ents(en_vocab):

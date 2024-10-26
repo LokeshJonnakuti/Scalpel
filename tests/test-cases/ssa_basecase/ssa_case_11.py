@@ -5,6 +5,4 @@ else:
     b = 10.0
 
 b = "abc"
-c = a*b
-
-
+c = a * b

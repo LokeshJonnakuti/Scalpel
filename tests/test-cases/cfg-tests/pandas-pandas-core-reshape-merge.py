@@ -5,38 +5,24 @@ from __future__ import annotations
 
 import copy
 import datetime
-from functools import partial
 import hashlib
 import string
-from typing import (
-    TYPE_CHECKING,
-    Hashable,
-    cast,
-)
 import warnings
+from functools import partial
+from typing import TYPE_CHECKING, Hashable, cast
 
 import numpy as np
-
-from pandas._libs import (
-    Timedelta,
-    hashtable as libhashtable,
-    join as libjoin,
-    lib,
-)
-from pandas._typing import (
-    ArrayLike,
-    DtypeObj,
-    FrameOrSeries,
-    IndexLabel,
-    Suffixes,
-    npt,
-)
-from pandas.errors import MergeError
-from pandas.util._decorators import (
-    Appender,
-    Substitution,
-)
-
+import pandas.core.algorithms as algos
+import pandas.core.common as com
+from pandas import Categorical, Index, MultiIndex
+from pandas._libs import Timedelta
+from pandas._libs import hashtable as libhashtable
+from pandas._libs import join as libjoin
+from pandas._libs import lib
+from pandas._typing import ArrayLike, DtypeObj, FrameOrSeries, IndexLabel, Suffixes, npt
+from pandas.core import groupby
+from pandas.core.arrays import ExtensionArray
+from pandas.core.construction import extract_array
 from pandas.core.dtypes.common import (
     ensure_float64,
     ensure_int64,
@@ -57,34 +43,16 @@ from pandas.core.dtypes.common import (
     is_object_dtype,
     needs_i8_conversion,
 )
-from pandas.core.dtypes.generic import (
-    ABCDataFrame,
-    ABCSeries,
-)
-from pandas.core.dtypes.missing import (
-    isna,
-    na_value_for_dtype,
-)
-
-from pandas import (
-    Categorical,
-    Index,
-    MultiIndex,
-)
-from pandas.core import groupby
-import pandas.core.algorithms as algos
-from pandas.core.arrays import ExtensionArray
-import pandas.core.common as com
-from pandas.core.construction import extract_array
+from pandas.core.dtypes.generic import ABCDataFrame, ABCSeries
+from pandas.core.dtypes.missing import isna, na_value_for_dtype
 from pandas.core.frame import _merge_doc
 from pandas.core.internals import concatenate_managers
 from pandas.core.sorting import is_int64_overflow_possible
+from pandas.errors import MergeError
+from pandas.util._decorators import Appender, Substitution
 
 if TYPE_CHECKING:
-    from pandas import (
-        DataFrame,
-        Series,
-    )
+    from pandas import DataFrame, Series
     from pandas.core.arrays import DatetimeArray
 
 
@@ -151,7 +119,6 @@ def _groupby_and_merge(by, left: DataFrame, right: DataFrame, merge_pieces):
         rby = right.groupby(by, sort=False)
 
     for key, lhs in lby:
-
         if rby is None:
             rhs = right
         else:
@@ -753,7 +720,6 @@ class _MergeOperation:
     def _indicator_pre_merge(
         self, left: DataFrame, right: DataFrame
     ) -> tuple[DataFrame, DataFrame]:
-
         columns = left.columns.union(right.columns)
 
         for i in ["_left_indicator", "_right_indicator"]:
@@ -779,7 +745,6 @@ class _MergeOperation:
         return left, right
 
     def _indicator_post_merge(self, result: DataFrame) -> DataFrame:
-
         result["_left_indicator"] = result["_left_indicator"].fillna(0)
         result["_right_indicator"] = result["_right_indicator"].fillna(0)
 
@@ -823,7 +788,6 @@ class _MergeOperation:
                 and self.orig_right._is_level_reference(right_key)
                 and name not in result.index.names
             ):
-
                 names_to_restore.append(name)
 
         if names_to_restore:
@@ -835,7 +799,6 @@ class _MergeOperation:
         left_indexer: np.ndarray | None,
         right_indexer: np.ndarray | None,
     ) -> None:
-
         left_has_missing = None
         right_has_missing = None
 
@@ -847,10 +810,8 @@ class _MergeOperation:
             take_left, take_right = None, None
 
             if name in result:
-
                 if left_indexer is not None and right_indexer is not None:
                     if name in self.left:
-
                         if left_has_missing is None:
                             left_has_missing = (left_indexer == -1).any()
 
@@ -863,7 +824,6 @@ class _MergeOperation:
                                 take_left = self.left[name]._values
 
                     elif name in self.right:
-
                         if right_has_missing is None:
                             right_has_missing = (right_indexer == -1).any()
 
@@ -880,7 +840,6 @@ class _MergeOperation:
                 take_right = self.right_join_keys[i]
 
             if take_left is not None or take_right is not None:
-
                 if take_left is None:
                     lvals = result[name]._values
                 else:
@@ -919,9 +878,11 @@ class _MergeOperation:
                     if isinstance(result.index, MultiIndex):
                         key_col.name = name
                         idx_list = [
-                            result.index.get_level_values(level_name)
-                            if level_name != name
-                            else key_col
+                            (
+                                result.index.get_level_values(level_name)
+                                if level_name != name
+                                else key_col
+                            )
                             for level_name in result.index.names
                         ]
 
@@ -1199,9 +1160,11 @@ class _MergeOperation:
                 elif is_integer_dtype(rk.dtype) and is_float_dtype(lk.dtype):
                     if not (lk == lk.astype(rk.dtype))[~np.isnan(lk)].all():
                         warnings.warn(
-                            "You are merging on int and float "
-                            "columns where the float values "
-                            "are not equal to their int representation",
+                            (
+                                "You are merging on int and float "
+                                "columns where the float values "
+                                "are not equal to their int representation"
+                            ),
                             UserWarning,
                         )
                     continue
@@ -1209,9 +1172,11 @@ class _MergeOperation:
                 elif is_float_dtype(rk.dtype) and is_integer_dtype(lk.dtype):
                     if not (rk == rk.astype(lk.dtype))[~np.isnan(rk)].all():
                         warnings.warn(
-                            "You are merging on int and float "
-                            "columns where the float values "
-                            "are not equal to their int representation",
+                            (
+                                "You are merging on int and float "
+                                "columns where the float values "
+                                "are not equal to their int representation"
+                            ),
                             UserWarning,
                         )
                     continue
@@ -1327,7 +1292,6 @@ class _MergeOperation:
             return
         # Hm, any way to make this logic less complicated??
         elif self.on is None and self.left_on is None and self.right_on is None:
-
             if self.left_index and self.right_index:
                 self.left_on, self.right_on = (), ()
             elif self.left_index:
@@ -1399,7 +1363,6 @@ class _MergeOperation:
             raise ValueError("len(right_on) must equal len(left_on)")
 
     def _validate(self, validate: str) -> None:
-
         # Check uniqueness of each
         if self.left_index:
             left_unique = self.orig_left.index.is_unique
@@ -1615,7 +1578,6 @@ class _OrderedMerge(_MergeOperation):
         fill_method: str | None = None,
         how: str = "outer",
     ):
-
         self.fill_method = fill_method
         _MergeOperation.__init__(
             self,
@@ -1726,7 +1688,6 @@ class _AsOfMerge(_OrderedMerge):
         allow_exact_matches: bool = True,
         direction: str = "backward",
     ):
-
         self.by = by
         self.left_by = left_by
         self.right_by = right_by
@@ -1811,7 +1772,6 @@ class _AsOfMerge(_OrderedMerge):
             raise MergeError(f"direction invalid: {self.direction}")
 
     def _get_merge_keys(self):
-
         # note this function has side effects
         (left_join_keys, right_join_keys, join_names) = super()._get_merge_keys()
 
@@ -1840,7 +1800,6 @@ class _AsOfMerge(_OrderedMerge):
 
         # validate tolerance; datetime.timedelta or Timedelta if we have a DTI
         if self.tolerance is not None:
-
             if self.left_index:
                 lt = self.left.index
             else:
@@ -1891,9 +1850,11 @@ class _AsOfMerge(_OrderedMerge):
             # error: Item "ndarray" of "Union[Any, Union[ExtensionArray, ndarray]]" has
             # no attribute "_values_for_argsort"
             xs = [
-                x
-                if not is_extension_array_dtype(x)
-                else extract_array(x)._values_for_argsort()  # type: ignore[union-attr]
+                (
+                    x
+                    if not is_extension_array_dtype(x)
+                    else extract_array(x)._values_for_argsort()
+                )  # type: ignore[union-attr]
                 for x in xs
             ]
             labels = list(string.ascii_lowercase[: len(xs)])
@@ -2209,7 +2170,6 @@ def _sort_labels(
 
 
 def _get_join_keys(llab, rlab, shape, sort: bool):
-
     # how many levels can be done without overflow
     nlev = next(
         lev
@@ -2278,9 +2238,11 @@ def _items_overlap_with_suffix(
     """
     if not is_list_like(suffixes, allow_sets=False):
         warnings.warn(
-            f"Passing 'suffixes' as a {type(suffixes)}, is not supported and may give "
-            "unexpected results. Provide 'suffixes' as a tuple instead. In the "
-            "future a 'TypeError' will be raised.",
+            (
+                f"Passing 'suffixes' as a {type(suffixes)}, is not supported and may"
+                " give unexpected results. Provide 'suffixes' as a tuple instead. In"
+                " the future a 'TypeError' will be raised."
+            ),
             FutureWarning,
             stacklevel=4,
         )
@@ -2329,8 +2291,10 @@ def _items_overlap_with_suffix(
         dups.extend(rlabels[(rlabels.duplicated()) & (~right.duplicated())].tolist())
     if dups:
         warnings.warn(
-            f"Passing 'suffixes' which cause duplicate columns {set(dups)} in the "
-            f"result is deprecated and will raise a MergeError in a future version.",
+            (
+                f"Passing 'suffixes' which cause duplicate columns {set(dups)} in the "
+                "result is deprecated and will raise a MergeError in a future version."
+            ),
             FutureWarning,
             stacklevel=4,
         )

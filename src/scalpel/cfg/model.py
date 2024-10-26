@@ -1,6 +1,6 @@
 """
 The module provides interface for CFG Class, which is a control flow graph (CFG) representation of a Python function or module.
-It is a directed graph with basic blocks as nodes and control flow jumps as edges. The CFG class can be used to analyze the control flow of a Python function or module. 
+It is a directed graph with basic blocks as nodes and control flow jumps as edges. The CFG class can be used to analyze the control flow of a Python function or module.
 It can also be used to build a "graphviz" visualization of the CFG, which can be helpful for understanding the control flow of a complex function or module.
 """
 
@@ -116,34 +116,44 @@ class Block(object):
         Returns:
             A string containing the source code of the statements.
         """
-        src = "#" + str(self.id)+'\n'
+        src = "#" + str(self.id) + "\n"
+
         def get_source_helper(source):
             idx, p = 0, 0
-            while p != 0 or idx == 0 or source[idx] != ':':
+            while p != 0 or idx == 0 or source[idx] != ":":
                 if source[idx] in "\"'":
-                    ridx = source[idx + 1:].index(source[idx]) + idx + 1
+                    ridx = source[idx + 1 :].index(source[idx]) + idx + 1
                     while True:
                         try:
-                            eval(source[idx : ridx + 1].replace("\n", ''))
+                            eval(source[idx : ridx + 1].replace("\n", ""))
                             break
                         except:
                             ridx += 1
                     idx = ridx + 1
                     continue
-                if source[idx] in '([{':
+                if source[idx] in "([{":
                     p += 1
-                elif source[idx] in ')]}':
+                elif source[idx] in ")]}":
                     p -= 1
                 idx += 1
-            source = source[: idx + 1].split('\n')
-            source = ''.join(map(lambda s : s.strip(), source))
+            source = source[: idx + 1].split("\n")
+            source = "".join(map(lambda s: s.strip(), source))
             return source + "\n"
+
         for statement in self.statements:
             source = astor.to_source(statement)
-            if type(statement) in [ast.If, ast.For, ast.While, ast.With, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]:
+            if type(statement) in [
+                ast.If,
+                ast.For,
+                ast.While,
+                ast.With,
+                ast.FunctionDef,
+                ast.AsyncFunctionDef,
+                ast.ClassDef,
+            ]:
                 src += get_source_helper(source)
             elif type(statement) == ast.Try:
-                src += (astor.to_source(statement)).split('\n')[0] + "\n"
+                src += (astor.to_source(statement)).split("\n")[0] + "\n"
             else:
                 src += astor.to_source(statement)
         return src

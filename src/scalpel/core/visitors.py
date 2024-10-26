@@ -1,12 +1,14 @@
 """
-Node visitors used for type Inference and other utilities. The abstract class is extracted from mypy project at [here](https://github.com/python/mypy/blob/master/mypy/visitor.py). 
-This module is not intended for creating APIs. 
+Node visitors used for type Inference and other utilities. The abstract class is extracted from mypy project at [here](https://github.com/python/mypy/blob/master/mypy/visitor.py).
+This module is not intended for creating APIs.
 """
 
 import ast
 from collections import deque
 from copy import deepcopy
+
 import mypy
+
 
 class FuncCallVisitor(ast.NodeVisitor):
     """
@@ -276,7 +278,9 @@ class ExpressionVisitor(Generic[T]):
         pass
 
     @abstractmethod
-    def visit_dictionary_comprehension(self, o: mypy.nodes.DictionaryComprehension) -> T:
+    def visit_dictionary_comprehension(
+        self, o: mypy.nodes.DictionaryComprehension
+    ) -> T:
         pass
 
     @abstractmethod
@@ -488,7 +492,9 @@ class PatternVisitor(Generic[T]):
 
 @trait
 @mypyc_attr(allow_interpreted_subclasses=True)
-class NodeVisitor(Generic[T], ExpressionVisitor[T], StatementVisitor[T], PatternVisitor[T]):
+class NodeVisitor(
+    Generic[T], ExpressionVisitor[T], StatementVisitor[T], PatternVisitor[T]
+):
     """Empty base class for parse tree node visitors.
 
     The T type argument specifies the return type of the visit
@@ -689,7 +695,9 @@ class NodeVisitor(Generic[T], ExpressionVisitor[T], StatementVisitor[T], Pattern
     def visit_set_comprehension(self, o: mypy.nodes.SetComprehension) -> T:
         pass
 
-    def visit_dictionary_comprehension(self, o: mypy.nodes.DictionaryComprehension) -> T:
+    def visit_dictionary_comprehension(
+        self, o: mypy.nodes.DictionaryComprehension
+    ) -> T:
         pass
 
     def visit_generator_expr(self, o: mypy.nodes.GeneratorExpr) -> T:

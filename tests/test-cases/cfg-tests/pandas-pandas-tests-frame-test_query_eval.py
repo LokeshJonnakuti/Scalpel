@@ -1,20 +1,12 @@
-from io import StringIO
 import operator
+from io import StringIO
 
 import numpy as np
-import pytest
-
-import pandas.util._test_decorators as td
-
 import pandas as pd
-from pandas import (
-    DataFrame,
-    Index,
-    MultiIndex,
-    Series,
-    date_range,
-)
 import pandas._testing as tm
+import pandas.util._test_decorators as td
+import pytest
+from pandas import DataFrame, Index, MultiIndex, Series, date_range
 from pandas.core.computation.check import NUMEXPR_INSTALLED
 
 PARSERS = "python", "pandas"
@@ -43,7 +35,6 @@ class TestCompat:
         self.expected2 = self.df.A + 1
 
     def test_query_default(self):
-
         # GH 12749
         # this should always work, whether NUMEXPR_INSTALLED or not
         df = self.df
@@ -53,7 +44,6 @@ class TestCompat:
         tm.assert_series_equal(result, self.expected2, check_names=False)
 
     def test_query_None(self):
-
         df = self.df
         result = df.query("A>0", engine=None)
         tm.assert_frame_equal(result, self.expected1)
@@ -61,7 +51,6 @@ class TestCompat:
         tm.assert_series_equal(result, self.expected2, check_names=False)
 
     def test_query_python(self):
-
         df = self.df
         result = df.query("A>0", engine="python")
         tm.assert_frame_equal(result, self.expected1)
@@ -69,7 +58,6 @@ class TestCompat:
         tm.assert_series_equal(result, self.expected2, check_names=False)
 
     def test_query_numexpr(self):
-
         df = self.df
         if NUMEXPR_INSTALLED:
             result = df.query("A>0", engine="numexpr")
@@ -89,7 +77,6 @@ class TestCompat:
 
 
 class TestDataFrameEval:
-
     # smaller hits python, larger hits numexpr
     @pytest.mark.parametrize("n", [4, 4000])
     @pytest.mark.parametrize(
@@ -102,7 +89,6 @@ class TestDataFrameEval:
         ],
     )
     def test_ops(self, op_str, op, rop, n):
-
         # tst ops and reversed ops in evaluation
         # GH7198
 
@@ -1029,7 +1015,6 @@ class TestDataFrameQueryStrings:
         tm.assert_frame_equal(res, expec)
 
     def test_query_lex_compare_strings(self, parser, engine):
-
         a = Series(np.random.choice(list("abcde"), 20))
         b = Series(np.arange(a.size))
         df = DataFrame({"X": a, "Y": b})

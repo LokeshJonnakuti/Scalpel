@@ -3,14 +3,11 @@
 """
 from __future__ import annotations
 
-from io import StringIO
-from keyword import iskeyword
 import token
 import tokenize
-from typing import (
-    Hashable,
-    Iterator,
-)
+from io import StringIO
+from keyword import iskeyword
+from typing import Hashable, Iterator
 
 # A token value Python's tokenizer probably will never use.
 BACKTICK_QUOTED_STRING = 100

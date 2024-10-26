@@ -11,9 +11,9 @@ Type-Inference
 ```
 
 ## API Name Qualifying
-The known qualified name is a dotted string that represent the path from top-level module down to the object iteself.  The name format is defined in [PEP 3155](https://www.python.org/dev/peps/pep-3155/). Obtainning the qualified API names are very import to API anaysis as the same function calls can appear in different source code with different names. Without qualifying them first,  it is hard to perform even basic statisitcal anaysis. 
+The known qualified name is a dotted string that represent the path from top-level module down to the object iteself.  The name format is defined in [PEP 3155](https://www.python.org/dev/peps/pep-3155/). Obtainning the qualified API names are very import to API anaysis as the same function calls can appear in different source code with different names. Without qualifying them first,  it is hard to perform even basic statisitcal anaysis.
 
-In this module, we show examples to use the functionalities of  call name extraction and import statement parsing to restore the call names. We implement the algorithm proposed by [1] that parsing all import statements to obtain a dictionary data structure for mapping the imported aliases and the API occurrents in the source code. 
+In this module, we show examples to use the functionalities of  call name extraction and import statement parsing to restore the call names. We implement the algorithm proposed by [1] that parsing all import statements to obtain a dictionary data structure for mapping the imported aliases and the API occurrents in the source code.
 
 The code to be analyzed:
 
@@ -62,7 +62,7 @@ mean
 len
 range
 ```
-As we can see, the function call `np.array`, `pd.read_csv` are recovered to `numpy.array` and `pandas.read_csv` respectively while the rest of function calls have their own name directly outputed. 
+As we can see, the function call `np.array`, `pd.read_csv` are recovered to `numpy.array` and `pandas.read_csv` respectively while the rest of function calls have their own name directly outputed.
 
 
 The full code of this example can be found in [API_name_qualifying.py](../examples/API_name_qualifying.py)

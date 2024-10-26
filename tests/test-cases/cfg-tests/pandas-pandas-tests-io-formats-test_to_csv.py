@@ -3,14 +3,10 @@ import os
 import sys
 
 import numpy as np
-import pytest
-
 import pandas as pd
-from pandas import (
-    DataFrame,
-    compat,
-)
 import pandas._testing as tm
+import pytest
+from pandas import DataFrame, compat
 
 
 class TestToCSV:
@@ -431,10 +427,7 @@ $1$,$2$
             # case 3: CRLF as line terminator
             # 'line_terminator' should not change inner element
             expected_crlf = (
-                b"int,str_crlf\r\n"
-                b"1,abc\r\n"
-                b'2,"d\r\nef"\r\n'
-                b'3,"g\r\nh\r\n\r\ni"\r\n'
+                b'int,str_crlf\r\n1,abc\r\n2,"d\r\nef"\r\n3,"g\r\nh\r\n\r\ni"\r\n'
             )
             df.to_csv(path, line_terminator="\r\n", index=False)
             with open(path, "rb") as f:

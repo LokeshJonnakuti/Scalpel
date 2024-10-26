@@ -1,11 +1,14 @@
-import pytest
-from spacy.training import Corpus
-from spacy.training.augment import create_orth_variants_augmenter
-from spacy.training.augment import create_lower_casing_augmenter
-from spacy.lang.en import English
-from spacy.tokens import DocBin, Doc
-from contextlib import contextmanager
 import random
+from contextlib import contextmanager
+
+import pytest
+from spacy.lang.en import English
+from spacy.tokens import Doc, DocBin
+from spacy.training import Corpus
+from spacy.training.augment import (
+    create_lower_casing_augmenter,
+    create_orth_variants_augmenter,
+)
 
 from ..util import make_tempdir
 

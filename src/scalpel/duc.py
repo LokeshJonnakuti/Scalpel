@@ -6,16 +6,8 @@ import ast
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import groupby
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
+
 from scalpel.cfg import CFG
 from scalpel.SSA.const import SSA
 

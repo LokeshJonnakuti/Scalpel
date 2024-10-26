@@ -4,6 +4,7 @@ def fib():
         yield a
         a, b = b, a + b
 
+
 fib_gen = fib()
 for _ in range(10):
     next(fib_gen)

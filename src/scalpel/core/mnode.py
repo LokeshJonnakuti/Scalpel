@@ -5,7 +5,7 @@ and code instrumentation. In addition, scope information can also be given for
 fine-grained operations.
 
 This module implements Mnode Class. A MNode class  is a representation of a Module as a node in a control flow graph (CFG).
-It extracts information about the node, such as its id, its statements, function definitions, imports and its exits from the source code. The MNode class is used by the CFGBuilder class to build CFGs from Python ASTs. 
+It extracts information about the node, such as its id, its statements, function definitions, imports and its exits from the source code. The MNode class is used by the CFGBuilder class to build CFGs from Python ASTs.
 """
 import ast
 

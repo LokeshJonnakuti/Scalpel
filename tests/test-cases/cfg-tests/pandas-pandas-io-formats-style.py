@@ -3,47 +3,26 @@ Module for applying conditional formatting to DataFrames and Series.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
 import copy
-from functools import partial
 import operator
-from typing import (
-    Any,
-    Callable,
-    Hashable,
-    Sequence,
-)
 import warnings
+from contextlib import contextmanager
+from functools import partial
+from typing import Any, Callable, Hashable, Sequence
 
 import numpy as np
-
-from pandas._config import get_option
-
-from pandas._typing import (
-    Axis,
-    FilePathOrBuffer,
-    FrameOrSeries,
-    IndexLabel,
-    Scalar,
-)
-from pandas.compat._optional import import_optional_dependency
-from pandas.util._decorators import doc
-
 import pandas as pd
-from pandas import (
-    IndexSlice,
-    RangeIndex,
-)
-from pandas.api.types import is_list_like
-from pandas.core import generic
 import pandas.core.common as com
-from pandas.core.frame import (
-    DataFrame,
-    Series,
-)
+from pandas import IndexSlice, RangeIndex
+from pandas._config import get_option
+from pandas._typing import Axis, FilePathOrBuffer, FrameOrSeries, IndexLabel, Scalar
+from pandas.api.types import is_list_like
+from pandas.compat._optional import import_optional_dependency
+from pandas.core import generic
+from pandas.core.frame import DataFrame, Series
 from pandas.core.generic import NDFrame
-
 from pandas.io.formats.format import save_to_buffer
+from pandas.util._decorators import doc
 
 jinja2 = import_optional_dependency("jinja2", extra="DataFrame.style requires jinja2.")
 
@@ -58,8 +37,8 @@ from pandas.io.formats.style_render import (
 )
 
 try:
-    from matplotlib import colors
     import matplotlib.pyplot as plt
+    from matplotlib import colors
 
     has_mpl = True
 except ImportError:
@@ -389,7 +368,6 @@ class Styler(StylerRenderer):
         verbose: bool = True,
         freeze_panes: tuple[int, int] | None = None,
     ) -> None:
-
         from pandas.io.formats.excel import ExcelFormatter
 
         formatter = ExcelFormatter(
@@ -750,8 +728,8 @@ class Styler(StylerRenderer):
         if position_float:
             if position_float not in ["raggedright", "raggedleft", "centering"]:
                 raise ValueError(
-                    f"`position_float` should be one of "
-                    f"'raggedright', 'raggedleft', 'centering', "
+                    "`position_float` should be one of "
+                    "'raggedright', 'raggedleft', 'centering', "
                     f"got: '{position_float}'"
                 )
             obj.set_table_styles(
@@ -1058,7 +1036,7 @@ class Styler(StylerRenderer):
                 if not isinstance(result, np.ndarray):
                     raise TypeError(
                         f"Function {repr(func)} must return a DataFrame or ndarray "
-                        f"when passed to `Styler.apply` with axis=None"
+                        "when passed to `Styler.apply` with axis=None"
                     )
                 if not (data.shape == result.shape):
                     raise ValueError(
@@ -1072,7 +1050,7 @@ class Styler(StylerRenderer):
             ):
                 raise ValueError(
                     f"Result of {repr(func)} must have identical "
-                    f"index and columns as the input"
+                    "index and columns as the input"
                 )
 
         if result.shape != data.shape:
@@ -1487,12 +1465,14 @@ class Styler(StylerRenderer):
                 [
                     {
                         "selector": f"{tag} th.level{level}",
-                        "props": f"position: sticky; "
-                        f"{pos}: {i * pixel_size}px; "
-                        f"{f'height: {pixel_size}px; ' if axis == 1 else ''}"
-                        f"{f'min-width: {pixel_size}px; ' if axis == 0 else ''}"
-                        f"{f'max-width: {pixel_size}px; ' if axis == 0 else ''}"
-                        f"background-color: white;",
+                        "props": (
+                            "position: sticky; "
+                            f"{pos}: {i * pixel_size}px; "
+                            f"{f'height: {pixel_size}px; ' if axis == 1 else ''}"
+                            f"{f'min-width: {pixel_size}px; ' if axis == 0 else ''}"
+                            f"{f'max-width: {pixel_size}px; ' if axis == 0 else ''}"
+                            "background-color: white;"
+                        ),
                     }
                 ],
                 overwrite=False,
@@ -2664,12 +2644,12 @@ def _validate_apply_axis_arg(
     if isinstance(arg, Series) and isinstance(data, DataFrame):
         raise ValueError(
             f"'{arg_name}' is a Series but underlying data for operations "
-            f"is a DataFrame since 'axis=None'"
+            "is a DataFrame since 'axis=None'"
         )
     elif isinstance(arg, DataFrame) and isinstance(data, Series):
         raise ValueError(
             f"'{arg_name}' is a DataFrame but underlying data for "
-            f"operations is a Series with 'axis in [0,1]'"
+            "operations is a Series with 'axis in [0,1]'"
         )
     elif isinstance(arg, (Series, DataFrame)):  # align indx / cols to data
         arg = arg.reindex_like(data, method=None).to_numpy(**dtype)
@@ -2783,7 +2763,7 @@ def _highlight_between(
         ops = (operator.gt, operator.le)
     else:
         raise ValueError(
-            f"'inclusive' values can be 'both', 'left', 'right', or 'neither' "
+            "'inclusive' values can be 'both', 'left', 'right', or 'neither' "
             f"got {inclusive}"
         )
 

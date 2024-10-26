@@ -9,33 +9,34 @@ Usage:
 """
 # future division is important to divide integers and get as
 # a result precise floating numbers (instead of truncated int)
-from __future__ import division, absolute_import
+from __future__ import absolute_import, division
+
 # import compatibility functions and utilities
 import sys
-from ._utils import _range
+
 # to inherit from the tqdm class
 from ._tqdm import tqdm
-
+from ._utils import _range
 
 if True:  # pragma: no cover
     # import IPython/Jupyter base widget and display utilities
     try:  # IPython 4.x
         import ipywidgets
+
         IPY = 4
     except ImportError:  # IPython 3.x / 2.x
         IPY = 32
         import warnings
+
         with warnings.catch_warnings():
-            ipy_deprecation_msg = "The `IPython.html` package" \
-                                  " has been deprecated"
-            warnings.filterwarnings('error',
-                                    message=".*" + ipy_deprecation_msg + ".*")
+            ipy_deprecation_msg = "The `IPython.html` package has been deprecated"
+            warnings.filterwarnings("error", message=".*" + ipy_deprecation_msg + ".*")
             try:
                 import IPython.html.widgets as ipywidgets
             except Warning as e:
                 if ipy_deprecation_msg not in str(e):
                     raise
-                warnings.simplefilter('ignore')
+                warnings.simplefilter("ignore")
                 try:
                     import IPython.html.widgets as ipywidgets  # NOQA
                 except ImportError:
@@ -45,15 +46,17 @@ if True:  # pragma: no cover
 
     try:  # IPython 4.x / 3.x
         if IPY == 32:
-            from IPython.html.widgets import IntProgress, HBox, HTML
+            from IPython.html.widgets import HTML, HBox, IntProgress
+
             IPY = 3
         else:
-            from ipywidgets import IntProgress, HBox, HTML
+            from ipywidgets import HTML, HBox, IntProgress
     except ImportError:
         try:  # IPython 2.x
-            from IPython.html.widgets import IntProgressWidget as IntProgress
-            from IPython.html.widgets import ContainerWidget as HBox
             from IPython.html.widgets import HTML
+            from IPython.html.widgets import ContainerWidget as HBox
+            from IPython.html.widgets import IntProgressWidget as IntProgress
+
             IPY = 2
         except ImportError:
             IPY = 0
@@ -71,7 +74,7 @@ if True:  # pragma: no cover
 
 
 __author__ = {"github.com/": ["lrq3000", "casperdcl", "alexanderkuk"]}
-__all__ = ['tqdm_notebook', 'tnrange']
+__all__ = ["tqdm_notebook", "tnrange"]
 
 
 class tqdm_notebook(tqdm):
@@ -97,7 +100,7 @@ class tqdm_notebook(tqdm):
         else:  # No total? Show info style bar with no progress tqdm status
             pbar = IntProgress(min=0, max=1)
             pbar.value = 1
-            pbar.bar_style = 'info'
+            pbar.bar_style = "info"
         if desc:
             pbar.description = desc
         # Prepare status text
@@ -106,7 +109,7 @@ class tqdm_notebook(tqdm):
         container = HBox(children=[pbar, ptext])
         display(container)
 
-        def print_status(s='', close=False, bar_style=None, desc=None):
+        def print_status(s="", close=False, bar_style=None, desc=None):
             # Note: contrary to native tqdm, s='' does NOT clear bar
             # goal is to keep all infos if error happens so user knows
             # at which iteration the loop failed.
@@ -118,11 +121,11 @@ class tqdm_notebook(tqdm):
             if total:
                 # n = None
                 if s:
-                    npos = s.find(r'/|/')  # cause we use bar_format=r'{n}|...'
+                    npos = s.find(r"/|/")  # cause we use bar_format=r'{n}|...'
                     # Check that n can be found in s (else n > total)
                     if npos >= 0:
                         n = int(s[:npos])  # get n from string
-                        s = s[npos + 3:]  # remove from string
+                        s = s[npos + 3 :]  # remove from string
 
                         # Update bar with current n value
                         if n is not None:
@@ -130,7 +133,7 @@ class tqdm_notebook(tqdm):
 
             # Print stats
             if s:  # never clear the bar (signal: s='')
-                s = s.replace('||', '')  # remove inesthetical pipes
+                s = s.replace("||", "")  # remove inesthetical pipes
                 s = escape(s)  # html escape special characters (like '?')
                 ptext.value = s
 
@@ -138,11 +141,11 @@ class tqdm_notebook(tqdm):
             if bar_style:
                 # Hack-ish way to avoid the danger bar_style being overriden by
                 # success because the bar gets closed after the error...
-                if not (pbar.bar_style == 'danger' and bar_style == 'success'):
+                if not (pbar.bar_style == "danger" and bar_style == "success"):
                     pbar.bar_style = bar_style
 
             # Special signal to close the bar
-            if close and pbar.bar_style != 'danger':  # hide only if no error
+            if close and pbar.bar_style != "danger":  # hide only if no error
                 try:
                     container.close()
                 except AttributeError:
@@ -156,17 +159,17 @@ class tqdm_notebook(tqdm):
 
     def __init__(self, *args, **kwargs):
         # Setup default output
-        if kwargs.get('file', sys.stderr) is sys.stderr:
-            kwargs['file'] = sys.stdout  # avoid the red block in IPython
+        if kwargs.get("file", sys.stderr) is sys.stderr:
+            kwargs["file"] = sys.stdout  # avoid the red block in IPython
 
         # Remove the bar from the printed string, only print stats
-        if not kwargs.get('bar_format', None):
-            kwargs['bar_format'] = r'{n}/|/{l_bar}{r_bar}'
+        if not kwargs.get("bar_format", None):
+            kwargs["bar_format"] = r"{n}/|/{l_bar}{r_bar}"
 
         # Initialize parent class + avoid printing by using gui=True
-        kwargs['gui'] = True
+        kwargs["gui"] = True
         super(tqdm_notebook, self).__init__(*args, **kwargs)
-        if self.disable or not kwargs['gui']:
+        if self.disable or not kwargs["gui"]:
             return
 
         # Delete first pbar generated from super() (wrong total and text)
@@ -187,7 +190,7 @@ class tqdm_notebook(tqdm):
                 yield obj
         # NB: except ... [ as ...] breaks IPython async KeyboardInterrupt
         except:
-            self.sp(bar_style='danger')
+            self.sp(bar_style="danger")
             raise
 
     def update(self, *args, **kwargs):
@@ -196,20 +199,20 @@ class tqdm_notebook(tqdm):
         except Exception as exc:
             # cannot catch KeyboardInterrupt when using manual tqdm
             # as the interrupt will most likely happen on another statement
-            self.sp(bar_style='danger')
+            self.sp(bar_style="danger")
             raise exc
 
     def close(self, *args, **kwargs):
         super(tqdm_notebook, self).close(*args, **kwargs)
         # If it was not run in a notebook, sp is not assigned, check for it
-        if hasattr(self, 'sp'):
+        if hasattr(self, "sp"):
             # Try to detect if there was an error or KeyboardInterrupt
             # in manual mode: if n < total, things probably got wrong
             if self.total and self.n < self.total:
-                self.sp(bar_style='danger')
+                self.sp(bar_style="danger")
             else:
                 if self.leave:
-                    self.sp(bar_style='success')
+                    self.sp(bar_style="success")
                 else:
                     self.sp(close=True)
 
@@ -226,6 +229,7 @@ class tqdm_notebook(tqdm):
         desc  : str, optional
         """
         self.sp(desc=desc)
+
 
 def tnrange(*args, **kwargs):
     """

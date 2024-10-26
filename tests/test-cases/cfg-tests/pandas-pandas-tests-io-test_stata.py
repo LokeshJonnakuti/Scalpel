@@ -1,6 +1,5 @@
 import bz2
 import datetime as dt
-from datetime import datetime
 import gzip
 import io
 import lzma
@@ -8,19 +7,14 @@ import os
 import struct
 import warnings
 import zipfile
+from datetime import datetime
 
 import numpy as np
-import pytest
-
-from pandas.core.dtypes.common import is_categorical_dtype
-
 import pandas as pd
 import pandas._testing as tm
-from pandas.core.frame import (
-    DataFrame,
-    Series,
-)
-
+import pytest
+from pandas.core.dtypes.common import is_categorical_dtype
+from pandas.core.frame import DataFrame, Series
 from pandas.io.parsers import read_csv
 from pandas.io.stata import (
     CategoricalConversionWarning,
@@ -142,7 +136,6 @@ class TestStata:
 
     @pytest.mark.parametrize("file", ["dta1_114", "dta1_117"])
     def test_read_dta1(self, file):
-
         file = getattr(self, file)
         parsed = self.read_dta(file)
 
@@ -160,7 +153,6 @@ class TestStata:
         tm.assert_frame_equal(parsed, expected)
 
     def test_read_dta2(self):
-
         expected = DataFrame.from_records(
             [
                 (
@@ -221,7 +213,6 @@ class TestStata:
 
     @pytest.mark.parametrize("file", ["dta3_113", "dta3_114", "dta3_115", "dta3_117"])
     def test_read_dta3(self, file):
-
         file = getattr(self, file)
         parsed = self.read_dta(file)
 
@@ -235,7 +226,6 @@ class TestStata:
 
     @pytest.mark.parametrize("file", ["dta4_113", "dta4_114", "dta4_115", "dta4_117"])
     def test_read_dta4(self, file):
-
         file = getattr(self, file)
         parsed = self.read_dta(file)
 
@@ -398,7 +388,6 @@ class TestStata:
 
     @pytest.mark.parametrize("version", [114, 117, 118, 119, None])
     def test_encoding(self, version):
-
         # GH 4626, proper encoding handling
         raw = read_stata(self.dta_encoding)
         encoded = read_stata(self.dta_encoding)
@@ -418,7 +407,7 @@ class TestStata:
             [(1, 2, 3, 4)],
             columns=[
                 "good",
-                "b\u00E4d",
+                "b\u00e4d",
                 "8number",
                 "astringwithmorethan32characters______",
             ],
@@ -475,9 +464,9 @@ class TestStata:
             tm.assert_frame_equal(written_and_read_again.set_index("index"), formatted)
 
     def test_read_write_dta13(self):
-        s1 = Series(2 ** 9, dtype=np.int16)
-        s2 = Series(2 ** 17, dtype=np.int32)
-        s3 = Series(2 ** 33, dtype=np.int64)
+        s1 = Series(2**9, dtype=np.int16)
+        s2 = Series(2**17, dtype=np.int32)
+        s3 = Series(2**33, dtype=np.int64)
         original = DataFrame({"int16": s1, "int32": s2, "int64": s3})
         original.index.name = "index"
 
@@ -516,7 +505,6 @@ class TestStata:
         "file", ["dta15_113", "dta15_114", "dta15_115", "dta15_117"]
     )
     def test_read_write_reread_dta15(self, file):
-
         expected = self.read_csv(self.csv15)
         expected["byte_"] = expected["byte_"].astype(np.int8)
         expected["int_"] = expected["int_"].astype(np.int16)
@@ -608,8 +596,8 @@ class TestStata:
     def test_large_value_conversion(self):
         s0 = Series([1, 99], dtype=np.int8)
         s1 = Series([1, 127], dtype=np.int8)
-        s2 = Series([1, 2 ** 15 - 1], dtype=np.int16)
-        s3 = Series([1, 2 ** 63 - 1], dtype=np.int64)
+        s2 = Series([1, 2**15 - 1], dtype=np.int16)
+        s3 = Series([1, 2**63 - 1], dtype=np.int64)
         original = DataFrame({"s0": s0, "s1": s1, "s2": s2, "s3": s3})
         original.index.name = "index"
         with tm.ensure_clean() as path:
@@ -697,10 +685,10 @@ class TestStata:
         s0 = Series([0, 1, True], dtype=np.bool_)
         s1 = Series([0, 1, 100], dtype=np.uint8)
         s2 = Series([0, 1, 255], dtype=np.uint8)
-        s3 = Series([0, 1, 2 ** 15 - 100], dtype=np.uint16)
-        s4 = Series([0, 1, 2 ** 16 - 1], dtype=np.uint16)
-        s5 = Series([0, 1, 2 ** 31 - 100], dtype=np.uint32)
-        s6 = Series([0, 1, 2 ** 32 - 1], dtype=np.uint32)
+        s3 = Series([0, 1, 2**15 - 100], dtype=np.uint16)
+        s4 = Series([0, 1, 2**16 - 1], dtype=np.uint16)
+        s5 = Series([0, 1, 2**31 - 100], dtype=np.uint32)
+        s6 = Series([0, 1, 2**32 - 1], dtype=np.uint32)
 
         original = DataFrame(
             {"s0": s0, "s1": s1, "s2": s2, "s3": s3, "s4": s4, "s5": s5, "s6": s6}
@@ -1180,7 +1168,6 @@ class TestStata:
         return from_frame
 
     def test_iterator(self):
-
         fname = self.dta3_117
 
         parsed = read_stata(fname)
@@ -1327,7 +1314,7 @@ class TestStata:
                 )
 
     def test_write_variable_label_errors(self, mixed_frame):
-        values = ["\u03A1", "\u0391", "\u039D", "\u0394", "\u0391", "\u03A3"]
+        values = ["\u03a1", "\u0391", "\u039d", "\u0394", "\u0391", "\u03a3"]
 
         variable_labels_utf8 = {
             "a": "City Rank",
@@ -1346,9 +1333,11 @@ class TestStata:
         variable_labels_long = {
             "a": "City Rank",
             "b": "City Exponent",
-            "c": "A very, very, very long variable label "
-            "that is too long for Stata which means "
-            "that it has more than 80 characters",
+            "c": (
+                "A very, very, very long variable label "
+                "that is too long for Stata which means "
+                "that it has more than 80 characters"
+            ),
         }
 
         msg = "Variable labels must be 80 characters or fewer"
@@ -1989,7 +1978,7 @@ def test_iterator_value_labels():
 
 def test_precision_loss():
     df = DataFrame(
-        [[sum(2 ** i for i in range(60)), sum(2 ** i for i in range(52))]],
+        [[sum(2**i for i in range(60)), sum(2**i for i in range(52))]],
         columns=["big", "little"],
     )
     with tm.ensure_clean() as path:
@@ -2013,7 +2002,6 @@ def test_compression_roundtrip(compression):
     df.index.name = "index"
 
     with tm.ensure_clean() as path:
-
         df.to_stata(path, compression=compression)
         reread = read_stata(path, compression=compression, index_col="index")
         tm.assert_frame_equal(df, reread)

@@ -11,12 +11,13 @@ labeling information
 from __future__ import annotations
 
 import collections
-from collections import abc
 import datetime
 import functools
-from io import StringIO
 import itertools
 import mmap
+import warnings
+from collections import abc
+from io import StringIO
 from textwrap import dedent
 from typing import (
     IO,
@@ -32,18 +33,13 @@ from typing import (
     cast,
     overload,
 )
-import warnings
 
 import numpy as np
 import numpy.ma as ma
-
+import pandas.plotting
 from pandas._config import get_option
-
-from pandas._libs import (
-    algos as libalgos,
-    lib,
-    properties,
-)
+from pandas._libs import algos as libalgos
+from pandas._libs import lib, properties
 from pandas._libs.hashtable import duplicated
 from pandas._libs.lib import no_default
 from pandas._typing import (
@@ -75,20 +71,20 @@ from pandas._typing import (
 )
 from pandas.compat._optional import import_optional_dependency
 from pandas.compat.numpy import function as nv
-from pandas.util._decorators import (
-    Appender,
-    Substitution,
-    deprecate_kwarg,
-    deprecate_nonkeyword_arguments,
-    doc,
-    rewrite_axis_style_signature,
+from pandas.core import algorithms
+from pandas.core import common as com
+from pandas.core import generic, nanops, ops
+from pandas.core.accessor import CachedAccessor
+from pandas.core.aggregation import reconstruct_func, relabel_result
+from pandas.core.array_algos.take import take_2d_multi
+from pandas.core.arraylike import OpsMixin
+from pandas.core.arrays import DatetimeArray, ExtensionArray, TimedeltaArray
+from pandas.core.arrays.sparse import SparseFrameAccessor
+from pandas.core.construction import (
+    extract_array,
+    sanitize_array,
+    sanitize_masked_array,
 )
-from pandas.util._validators import (
-    validate_axis_style_args,
-    validate_bool_kwarg,
-    validate_percentile,
-)
-
 from pandas.core.dtypes.cast import (
     construct_1d_arraylike_from_scalar,
     construct_2d_arraylike_from_scalar,
@@ -123,40 +119,8 @@ from pandas.core.dtypes.common import (
     pandas_dtype,
 )
 from pandas.core.dtypes.dtypes import ExtensionDtype
-from pandas.core.dtypes.missing import (
-    isna,
-    notna,
-)
-
-from pandas.core import (
-    algorithms,
-    common as com,
-    generic,
-    nanops,
-    ops,
-)
-from pandas.core.accessor import CachedAccessor
-from pandas.core.aggregation import (
-    reconstruct_func,
-    relabel_result,
-)
-from pandas.core.array_algos.take import take_2d_multi
-from pandas.core.arraylike import OpsMixin
-from pandas.core.arrays import (
-    DatetimeArray,
-    ExtensionArray,
-    TimedeltaArray,
-)
-from pandas.core.arrays.sparse import SparseFrameAccessor
-from pandas.core.construction import (
-    extract_array,
-    sanitize_array,
-    sanitize_masked_array,
-)
-from pandas.core.generic import (
-    NDFrame,
-    _shared_docs,
-)
+from pandas.core.dtypes.missing import isna, notna
+from pandas.core.generic import NDFrame, _shared_docs
 from pandas.core.indexers import check_key_length
 from pandas.core.indexes import base as ibase
 from pandas.core.indexes.api import (
@@ -166,18 +130,9 @@ from pandas.core.indexes.api import (
     ensure_index,
     ensure_index_from_sequences,
 )
-from pandas.core.indexes.multi import (
-    MultiIndex,
-    maybe_droplevels,
-)
-from pandas.core.indexing import (
-    check_bool_indexer,
-    convert_to_index_sliceable,
-)
-from pandas.core.internals import (
-    ArrayManager,
-    BlockManager,
-)
+from pandas.core.indexes.multi import MultiIndex, maybe_droplevels
+from pandas.core.indexing import check_bool_indexer, convert_to_index_sliceable
+from pandas.core.internals import ArrayManager, BlockManager
 from pandas.core.internals.construction import (
     arrays_to_mgr,
     dataclasses_to_dicts,
@@ -192,28 +147,28 @@ from pandas.core.internals.construction import (
 )
 from pandas.core.reshape.melt import melt
 from pandas.core.series import Series
-from pandas.core.sorting import (
-    get_group_index,
-    lexsort_indexer,
-    nargsort,
-)
-
+from pandas.core.sorting import get_group_index, lexsort_indexer, nargsort
 from pandas.io.common import get_handle
-from pandas.io.formats import (
-    console,
-    format as fmt,
+from pandas.io.formats import console
+from pandas.io.formats import format as fmt
+from pandas.io.formats.info import BaseInfo, DataFrameInfo
+from pandas.util._decorators import (
+    Appender,
+    Substitution,
+    deprecate_kwarg,
+    deprecate_nonkeyword_arguments,
+    doc,
+    rewrite_axis_style_signature,
 )
-from pandas.io.formats.info import (
-    BaseInfo,
-    DataFrameInfo,
+from pandas.util._validators import (
+    validate_axis_style_args,
+    validate_bool_kwarg,
+    validate_percentile,
 )
-import pandas.plotting
 
 if TYPE_CHECKING:
-
     from pandas.core.groupby.generic import DataFrameGroupBy
     from pandas.core.resample import Resampler
-
     from pandas.io.formats.style import Styler
 
 # ---------------------------------------------------------------------
@@ -573,7 +528,6 @@ class DataFrame(NDFrame, OpsMixin):
         dtype: Dtype | None = None,
         copy: bool | None = None,
     ):
-
         if copy is None:
             if isinstance(data, dict) or data is None:
                 # retain pre-GH#38939 default behavior
@@ -621,9 +575,11 @@ class DataFrame(NDFrame, OpsMixin):
                     typ=manager,
                 )
                 warnings.warn(
-                    "Support for MaskedRecords is deprecated and will be "
-                    "removed in a future version.  Pass "
-                    "{name: data[name] for name in data.dtype.names} instead.",
+                    (
+                        "Support for MaskedRecords is deprecated and will be "
+                        "removed in a future version.  Pass "
+                        "{name: data[name] for name in data.dtype.names} instead."
+                    ),
                     FutureWarning,
                     stacklevel=2,
                 )
@@ -1045,9 +1001,11 @@ class DataFrame(NDFrame, OpsMixin):
 
     @Substitution(
         header_type="bool or sequence",
-        header="Write out the column names. If a list of strings "
-        "is given, it is assumed to be aliases for the "
-        "column names",
+        header=(
+            "Write out the column names. If a list of strings "
+            "is given, it is assumed to be aliases for the "
+            "column names"
+        ),
         col_space_type="int, list or dict of int",
         col_space="The minimum width of each column",
     )
@@ -1763,10 +1721,12 @@ class DataFrame(NDFrame, OpsMixin):
             "index",
         }:
             warnings.warn(
-                "Using short name for 'orient' is deprecated. Only the "
-                "options: ('dict', list, 'series', 'split', 'records', 'index') "
-                "will be used in a future version. Use one of the above "
-                "to silence this warning.",
+                (
+                    "Using short name for 'orient' is deprecated. Only the "
+                    "options: ('dict', list, 'series', 'split', 'records', 'index') "
+                    "will be used in a future version. Use one of the above "
+                    "to silence this warning."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )
@@ -2460,13 +2420,13 @@ class DataFrame(NDFrame, OpsMixin):
             from pandas.io.stata import StataWriter as statawriter
         elif version == 117:
             # mypy: Name 'statawriter' already defined (possibly by an import)
-            from pandas.io.stata import (  # type: ignore[no-redef]
-                StataWriter117 as statawriter,
+            from pandas.io.stata import (
+                StataWriter117 as statawriter,  # type: ignore[no-redef]
             )
         else:  # versions 118 and 119
             # mypy: Name 'statawriter' already defined (possibly by an import)
-            from pandas.io.stata import (  # type: ignore[no-redef]
-                StataWriterUTF8 as statawriter,
+            from pandas.io.stata import (
+                StataWriterUTF8 as statawriter,  # type: ignore[no-redef]
             )
 
         kwargs: dict[str, Any] = {}
@@ -2549,8 +2509,10 @@ class DataFrame(NDFrame, OpsMixin):
     ) -> str | None:
         if "showindex" in kwargs:
             warnings.warn(
-                "'showindex' is deprecated. Only 'index' will be used "
-                "in a future version. Use 'index' to silence this warning.",
+                (
+                    "'showindex' is deprecated. Only 'index' will be used "
+                    "in a future version. Use 'index' to silence this warning."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )
@@ -2683,10 +2645,12 @@ class DataFrame(NDFrame, OpsMixin):
         header_type="bool",
         header="Whether to print column labels, default True",
         col_space_type="str or int, list or dict of int or str",
-        col_space="The minimum width of each column in CSS length "
-        "units.  An int is assumed to be px units.\n\n"
-        "            .. versionadded:: 0.25.0\n"
-        "                Ability to use str",
+        col_space=(
+            "The minimum width of each column in CSS length "
+            "units.  An int is assumed to be px units.\n\n"
+            "            .. versionadded:: 0.25.0\n"
+            "                Ability to use str"
+        ),
     )
     @Substitution(shared_params=fmt.common_docstring, returns=fmt.return_docstring)
     def to_html(
@@ -2935,10 +2899,7 @@ class DataFrame(NDFrame, OpsMixin):
         </doc:data>
         """
 
-        from pandas.io.formats.xml import (
-            EtreeXMLFormatter,
-            LxmlXMLFormatter,
-        )
+        from pandas.io.formats.xml import EtreeXMLFormatter, LxmlXMLFormatter
 
         lxml = import_optional_dependency("lxml.etree", errors="ignore")
 
@@ -3663,7 +3624,6 @@ class DataFrame(NDFrame, OpsMixin):
                 self[col] = igetitem(value, i)
 
         else:
-
             ilocs = self.columns.get_indexer_non_unique(key)[0]
             if (ilocs < 0).any():
                 # key entries not in self.columns
@@ -6222,7 +6182,6 @@ class DataFrame(NDFrame, OpsMixin):
                 f"Length of ascending ({len(ascending)}) != length of by ({len(by)})"
             )
         if len(by) > 1:
-
             keys = [self._get_label_or_level_values(x, axis=axis) for x in by]
 
             # need to rewrap columns in Series to apply key function
@@ -8109,10 +8068,7 @@ NaN 12.3   33.0
         dog kg     NaN     2.0
             m      3.0     NaN
         """
-        from pandas.core.reshape.reshape import (
-            stack,
-            stack_multiple,
-        )
+        from pandas.core.reshape.reshape import stack, stack_multiple
 
         if isinstance(level, (tuple, list)):
             result = stack_multiple(self, level, dropna=dropna)
@@ -8322,7 +8278,6 @@ NaN 12.3   33.0
         col_level: Level | None = None,
         ignore_index: bool = True,
     ) -> DataFrame:
-
         return melt(
             self,
             id_vars=id_vars,
@@ -8339,8 +8294,10 @@ NaN 12.3   33.0
     @doc(
         Series.diff,
         klass="Dataframe",
-        extra_params="axis : {0 or 'index', 1 or 'columns'}, default 0\n    "
-        "Take difference over rows (0) or columns (1).\n",
+        extra_params=(
+            "axis : {0 or 'index', 1 or 'columns'}, default 0\n    "
+            "Take difference over rows (0) or columns (1).\n"
+        ),
         other_klass="Series",
         examples=dedent(
             """
@@ -9683,9 +9640,11 @@ NaN 12.3   33.0
         axis = self._get_axis_number(axis)
         if level is not None:
             warnings.warn(
-                "Using the level keyword in DataFrame and Series aggregations is "
-                "deprecated and will be removed in a future version. Use groupby "
-                "instead. df.count(level=1) should use df.groupby(level=1).count().",
+                (
+                    "Using the level keyword in DataFrame and Series aggregations is "
+                    "deprecated and will be removed in a future version. Use groupby "
+                    "instead. df.count(level=1) should use df.groupby(level=1).count()."
+                ),
                 FutureWarning,
                 stacklevel=2,
             )
@@ -9770,7 +9729,6 @@ NaN 12.3   33.0
         filter_type=None,
         **kwds,
     ):
-
         assert filter_type is None or filter_type == "bool", filter_type
         out_dtype = "bool" if filter_type == "bool" else None
 
@@ -9782,9 +9740,11 @@ NaN 12.3   33.0
         )
         if numeric_only is None and name in ["mean", "median"] and dtype_is_dt.any():
             warnings.warn(
-                "DataFrame.mean and DataFrame.median with numeric_only=None "
-                "will include datetime64 and datetime64tz columns in a "
-                "future version.",
+                (
+                    "DataFrame.mean and DataFrame.median with numeric_only=None "
+                    "will include datetime64 and datetime64tz columns in a "
+                    "future version."
+                ),
                 FutureWarning,
                 stacklevel=5,
             )
@@ -9855,10 +9815,12 @@ NaN 12.3   33.0
                 if name in ["all", "any"]:
                     arg_name = "bool_only"
                 warnings.warn(
-                    "Dropping of nuisance columns in DataFrame reductions "
-                    f"(with '{arg_name}=None') is deprecated; in a future "
-                    "version this will raise TypeError.  Select only valid "
-                    "columns before calling the reduction.",
+                    (
+                        "Dropping of nuisance columns in DataFrame reductions "
+                        f"(with '{arg_name}=None') is deprecated; in a future "
+                        "version this will raise TypeError.  Select only valid "
+                        "columns before calling the reduction."
+                    ),
                     FutureWarning,
                     stacklevel=5,
                 )
@@ -9888,10 +9850,12 @@ NaN 12.3   33.0
             if name in ["all", "any"]:
                 arg_name = "bool_only"
             warnings.warn(
-                "Dropping of nuisance columns in DataFrame reductions "
-                f"(with '{arg_name}=None') is deprecated; in a future "
-                "version this will raise TypeError.  Select only valid "
-                "columns before calling the reduction.",
+                (
+                    "Dropping of nuisance columns in DataFrame reductions "
+                    f"(with '{arg_name}=None') is deprecated; in a future "
+                    "version this will raise TypeError.  Select only valid "
+                    "columns before calling the reduction."
+                ),
                 FutureWarning,
                 stacklevel=5,
             )

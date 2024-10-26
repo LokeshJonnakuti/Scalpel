@@ -29,28 +29,28 @@ __all__ = [
 ]
 
 import warnings
-import numpy as np
-from tensorflow.keras.layers import Layer
-from tensorflow.keras import Input
-from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Lambda, Dropout, Reshape, LeakyReLU
-from tensorflow.keras.utils import Sequence
-from tensorflow.keras import activations, initializers, constraints, regularizers
-from typing import List, Tuple, Callable, AnyStr, Union
-from ..mapper import (
-    GraphSAGENodeGenerator,
-    GraphSAGELinkGenerator,
-    DirectedGraphSAGENodeGenerator,
-    DirectedGraphSAGELinkGenerator,
-    NodeSequence,
-    LinkSequence,
-)
+from typing import AnyStr, Callable, List, Tuple, Union
 
-from .misc import deprecated_model_function
+import numpy as np
+from tensorflow.keras import Input, activations
+from tensorflow.keras import backend as K
+from tensorflow.keras import constraints, initializers, regularizers
+from tensorflow.keras.layers import Dropout, Lambda, Layer, LeakyReLU, Reshape
+from tensorflow.keras.utils import Sequence
+
 from ..connector.neo4j.mapper import (
-    Neo4jGraphSAGENodeGenerator,
     Neo4jDirectedGraphSAGENodeGenerator,
+    Neo4jGraphSAGENodeGenerator,
 )
+from ..mapper import (
+    DirectedGraphSAGELinkGenerator,
+    DirectedGraphSAGENodeGenerator,
+    GraphSAGELinkGenerator,
+    GraphSAGENodeGenerator,
+    LinkSequence,
+    NodeSequence,
+)
+from .misc import deprecated_model_function
 
 
 class GraphSAGEAggregator(Layer):
@@ -144,7 +144,8 @@ class GraphSAGEAggregator(Layer):
         num_groups = np.sum(self.included_weight_groups)
         if num_groups < 1:
             raise ValueError(
-                "There must be at least one input with a non-zero neighbourhood dimension"
+                "There must be at least one input with a non-zero neighbourhood"
+                " dimension"
             )
 
         # Calculate the dimensionality of each group, and put remainder into the first group
@@ -718,8 +719,8 @@ def _require_without_generator(value, name):
         return value
     else:
         raise ValueError(
-            f"{name}: expected a value for 'n_samples', 'input_dim', and 'multiplicity' when "
-            f"'generator' is not provided, found {name}=None."
+            f"{name}: expected a value for 'n_samples', 'input_dim', and 'multiplicity'"
+            f" when 'generator' is not provided, found {name}=None."
         )
 
 
@@ -855,8 +856,8 @@ class GraphSAGE:
             # Check the number of samples and the layer sizes are consistent
             if len(self.n_samples) != self.max_hops:
                 raise ValueError(
-                    f"n_samples: expected one sample size for each of the {self.max_hops} layers, "
-                    f"found {len(self.n_samples)} sample sizes"
+                    "n_samples: expected one sample size for each of the"
+                    f" {self.max_hops} layers, found {len(self.n_samples)} sample sizes"
                 )
 
         # Feature dimensions for each layer
@@ -912,10 +913,14 @@ class GraphSAGE:
                 Neo4jGraphSAGENodeGenerator,
             ),
         ):
-            errmsg = "Generator should be an instance of GraphSAGENodeGenerator or GraphSAGELinkGenerator"
+            errmsg = (
+                "Generator should be an instance of GraphSAGENodeGenerator or"
+                " GraphSAGELinkGenerator"
+            )
             if isinstance(generator, (NodeSequence, LinkSequence)):
                 errmsg = (
-                    "Passing a Sequence object as the generator to GraphSAGE is no longer supported. "
+                    "Passing a Sequence object as the generator to GraphSAGE is no"
+                    " longer supported. "
                     + errmsg
                 )
             raise TypeError(errmsg)
@@ -924,9 +929,8 @@ class GraphSAGE:
         # Check the number of samples and the layer sizes are consistent
         if len(self.n_samples) != self.max_hops:
             raise ValueError(
-                "Mismatched lengths: neighbourhood sample sizes {} versus layer sizes {}".format(
-                    self.n_samples, self.layer_sizes
-                )
+                "Mismatched lengths: neighbourhood sample sizes {} versus layer"
+                " sizes {}".format(self.n_samples, self.layer_sizes)
             )
 
         self.multiplicity = generator.multiplicity
@@ -996,7 +1000,8 @@ class GraphSAGE:
 
         if len(xin) != self.max_hops + 1:
             raise ValueError(
-                "Length of input features should equal the number of GraphSAGE layers plus one"
+                "Length of input features should equal the number of GraphSAGE layers"
+                " plus one"
             )
 
         # Form GraphSAGE layers iteratively
@@ -1077,13 +1082,17 @@ class GraphSAGE:
             return self._link_model()
         else:
             raise RuntimeError(
-                "Currently only multiplicities of 1 and 2 are supported. Consider using node_model or "
-                "link_model method explicitly to build node or link prediction model, respectively."
+                "Currently only multiplicities of 1 and 2 are supported. Consider using"
+                " node_model or link_model method explicitly to build node or link"
+                " prediction model, respectively."
             )
 
     def default_model(self, flatten_output=True):
         warnings.warn(
-            "The .default_model() method is deprecated. Please use .in_out_tensors() method instead.",
+            (
+                "The .default_model() method is deprecated. Please use"
+                " .in_out_tensors() method instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1153,7 +1162,7 @@ class DirectedGraphSAGE(GraphSAGE):
         Passing a `NodeSequence` or `LinkSequence` object from the `generator.flow(...)` method
         as the `generator=` argument is now deprecated and the base generator object should be passed instead.
 
-        """
+    """
 
     def _get_sizes_from_generator(self, generator):
         """
@@ -1172,7 +1181,8 @@ class DirectedGraphSAGE(GraphSAGE):
             errmsg = "Generator should be an instance of DirectedGraphSAGENodeGenerator"
             if isinstance(generator, (NodeSequence, LinkSequence)):
                 errmsg = (
-                    "Passing a Sequence object as the generator to DirectedGraphSAGE is no longer supported. "
+                    "Passing a Sequence object as the generator to DirectedGraphSAGE is"
+                    " no longer supported. "
                     + errmsg
                 )
             raise TypeError(errmsg)
@@ -1180,16 +1190,14 @@ class DirectedGraphSAGE(GraphSAGE):
         self.in_samples = generator.in_samples
         if len(self.in_samples) != self.max_hops:
             raise ValueError(
-                "Mismatched lengths: in-node sample sizes {} versus layer sizes {}".format(
-                    self.in_samples, self.layer_sizes
-                )
+                "Mismatched lengths: in-node sample sizes {} versus layer sizes {}"
+                .format(self.in_samples, self.layer_sizes)
             )
         self.out_samples = generator.out_samples
         if len(self.out_samples) != self.max_hops:
             raise ValueError(
-                "Mismatched lengths: out-node sample sizes {} versus layer sizes {}".format(
-                    self.out_samples, self.layer_sizes
-                )
+                "Mismatched lengths: out-node sample sizes {} versus layer sizes {}"
+                .format(self.out_samples, self.layer_sizes)
             )
         feature_sizes = generator.graph.node_feature_sizes()
         if len(feature_sizes) > 1:
@@ -1219,15 +1227,13 @@ class DirectedGraphSAGE(GraphSAGE):
 
         if len(self.in_samples) != self.max_hops:
             raise ValueError(
-                "Mismatched lengths: in-node sample sizes {} versus layer sizes {}".format(
-                    self.in_samples, self.layer_sizes
-                )
+                "Mismatched lengths: in-node sample sizes {} versus layer sizes {}"
+                .format(self.in_samples, self.layer_sizes)
             )
         if len(self.out_samples) != self.max_hops:
             raise ValueError(
-                "Mismatched lengths: out-node sample sizes {} versus layer sizes {}".format(
-                    self.out_samples, self.layer_sizes
-                )
+                "Mismatched lengths: out-node sample sizes {} versus layer sizes {}"
+                .format(self.out_samples, self.layer_sizes)
             )
 
     def _compute_neighbourhood_sizes(self):
